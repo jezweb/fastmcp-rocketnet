@@ -4,7 +4,9 @@ A comprehensive collection of Model Context Protocol (MCP) servers for interacti
 
 ## Overview
 
-This repository contains multiple specialized MCP servers that provide programmatic access to Rocket.net's hosting platform capabilities. Each server focuses on a specific domain of functionality, allowing for modular deployment and usage.
+This repository contains a comprehensive suite of 7 specialized MCP servers that provide programmatic access to Rocket.net's hosting platform capabilities. Each server focuses on a specific domain of functionality, allowing for modular deployment and usage.
+
+**Total Coverage**: 75+ tools across all servers, covering site management, domains, backups, performance, WordPress, analytics, and billing.
 
 ## Architecture
 
@@ -14,6 +16,9 @@ The project uses a modular multi-server approach where each server handles speci
 - **rocketnet-domains** - Domain and DNS management
 - **rocketnet-backups** - Backup and recovery operations
 - **rocketnet-performance** - CDN cache and performance monitoring
+- **rocketnet-wordpress** - WordPress plugins, themes, and WP-CLI
+- **rocketnet-analytics** - Comprehensive reporting and security monitoring
+- **rocketnet-billing** - Account management and billing operations
 
 Each server is completely independent and self-contained for FastMCP Cloud compatibility.
 
@@ -128,6 +133,39 @@ CDN cache management, bandwidth monitoring, and visitor analytics.
 - `get_visitors_report` - Analyze visitor demographics
 - `get_bandwidth_usage` - Monitor bandwidth consumption
 
+### 5. WordPress Management (`rocketnet-wordpress`)
+WordPress-specific operations for plugins, themes, and WP-CLI.
+
+**Key Tools:**
+- `list_plugins` - List installed plugins
+- `install_plugin` - Install WordPress plugins
+- `update_plugins` - Update plugins to latest versions
+- `list_themes` - List installed themes
+- `activate_theme` - Switch active theme
+- `get_wordpress_status` - Check WordPress health
+- `run_wpcli_command` - Execute WP-CLI commands
+
+### 6. Analytics & Reporting (`rocketnet-analytics`)
+Comprehensive reporting, logging, and security monitoring.
+
+**Key Tools:**
+- `get_access_logs` - Retrieve and analyze access logs
+- `get_waf_events` - View Web Application Firewall events
+- `get_firewall_events_timeline` - Track security events
+- `get_site_health_report` - Complete site health assessment
+- `get_account_visitors_overview` - Account-wide analytics
+
+### 7. Billing & Account (`rocketnet-billing`)
+Invoice management, payment methods, and account administration.
+
+**Key Tools:**
+- `list_invoices` - View billing history
+- `get_invoice` - Detailed invoice information
+- `list_payment_methods` - Manage payment methods
+- `get_account_usage` - Monitor resource usage and costs
+- `list_account_users` - Manage user access
+- `get_available_products` - View plans and add-ons
+
 ## Deployment
 
 ### Local Development
@@ -163,6 +201,9 @@ fastmcp-rocketnet/
 ├── rocketnet-domains/      # Domains server
 ├── rocketnet-backups/      # Backups server
 ├── rocketnet-performance/  # Performance server
+├── rocketnet-wordpress/    # WordPress server
+├── rocketnet-analytics/    # Analytics server
+├── rocketnet-billing/      # Billing server
 ├── README.md
 ├── SCRATCHPAD.md          # Development notes
 └── DEPLOYMENT.md          # Deployment guide
