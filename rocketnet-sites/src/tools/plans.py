@@ -45,7 +45,11 @@ async def list_plans(
             username=username,
             password=password
         )
-        plans = response.get("plans", response.get("data", []))
+        # Handle direct array or nested response
+        if isinstance(response, list):
+            plans = response
+        else:
+            plans = response.get("plans", response.get("data", [])) if isinstance(response, dict) else []
 
         formatted_plans = []
         for plan in plans:

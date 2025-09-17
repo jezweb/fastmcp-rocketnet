@@ -55,20 +55,12 @@ async def list_sites(
             params=params
         )
 
-        # Debug: Log the response to understand its structure
-        import json
-        print(f"DEBUG: Raw API response type: {type(response)}")
-        print(f"DEBUG: Raw API response: {json.dumps(response, indent=2) if isinstance(response, dict) else response}")
-
-        # Format site information - handle different response formats
+        # The API returns sites as a direct array
         if isinstance(response, list):
-            # Response is directly an array of sites
             sites = response
-        elif isinstance(response, dict):
-            # Try different possible keys
-            sites = response.get("sites", response.get("data", []))
         else:
-            sites = []
+            # Fallback for other possible formats
+            sites = response.get("sites", response.get("data", [])) if isinstance(response, dict) else []
         formatted_sites = [format_site_info(site) for site in sites]
 
         return format_success(

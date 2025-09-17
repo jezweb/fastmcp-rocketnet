@@ -34,7 +34,11 @@ async def list_locations(
             username=username,
             password=password
         )
-        locations = response.get("locations", response.get("data", []))
+        # Handle direct array or nested response
+        if isinstance(response, list):
+            locations = response
+        else:
+            locations = response.get("locations", response.get("data", [])) if isinstance(response, dict) else []
 
         formatted_locations = []
         for loc in locations:
