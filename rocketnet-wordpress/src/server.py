@@ -24,6 +24,8 @@ from tools.wordpress import (
     install_theme,
     activate_theme,
     delete_theme,
+    search_themes,
+    update_themes,
     get_wordpress_status,
     get_wordpress_login_url,
     run_wpcli_command,
@@ -45,15 +47,17 @@ mcp = FastMCP(
     - search_plugins: Search WordPress.org for plugins
     - list_themes: List all installed themes
     - install_theme: Install a theme from WordPress.org
+    - update_themes: Update themes to latest versions
     - activate_theme: Activate an installed theme
     - delete_theme: Remove a theme
+    - search_themes: Search WordPress.org for themes
     - get_wordpress_status: Get WordPress installation health
     - get_wordpress_login_url: Generate SSO login URL
     - run_wpcli_command: Execute WP-CLI commands
 
     WordPress Features:
-    - Plugin management (install, update, activate, delete)
-    - Theme management
+    - Plugin management (install, update, activate, delete, search)
+    - Theme management (install, update, activate, delete, search)
     - WP-CLI command execution
     - WordPress health monitoring
     - One-click SSO login
@@ -79,6 +83,8 @@ mcp.tool(list_themes)
 mcp.tool(install_theme)
 mcp.tool(activate_theme)
 mcp.tool(delete_theme)
+mcp.tool(search_themes)
+mcp.tool(update_themes)
 mcp.tool(get_wordpress_status)
 mcp.tool(get_wordpress_login_url)
 mcp.tool(run_wpcli_command)

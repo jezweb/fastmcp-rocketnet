@@ -558,6 +558,123 @@ async def delete_theme(
         return format_error(f"Failed to delete theme {theme_slug}: {str(e)}")
 
 
+async def search_themes(
+    site_id: str,
+    search_term: str,
+    limit: int = 10,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Search for WordPress themes in the repository.
+
+    Args:
+        site_id: The ID of the site
+        search_term: Search query for themes
+        limit: Maximum number of results
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
+
+    Returns:
+        List of themes matching the search
+    """
+    try:
+        params = {
+            "search": search_term,
+            "limit": limit
+        }
+
+        response = await make_api_request(
+            method="GET",
+            endpoint=f"/sites/{site_id}/themes/search",
+            params=params,
+            username=username,
+            password=password
+        )
+        themes = response.get("themes", response.get("data", []))
+
+        formatted_results = []
+        for theme in themes[:limit]:
+            formatted_results.append({
+                "name": theme.get("name"),
+                "slug": theme.get("slug"),
+                "rating": theme.get("rating"),
+                "num_ratings": theme.get("num_ratings"),
+                "active_installs": theme.get("active_installs"),
+                "last_updated": theme.get("last_updated"),
+                "tested_up_to": theme.get("tested_up_to"),
+                "short_description": theme.get("description", theme.get("short_description")),
+                "author": theme.get("author"),
+                "screenshot": theme.get("screenshot")
+            })
+
+        return format_success(
+            f"Found {len(formatted_results)} themes matching '{search_term}'",
+            {
+                "search_term": search_term,
+                "results": formatted_results,
+                "count": len(formatted_results)
+            }
+        )
+
+    except Exception as e:
+        return format_error(f"Failed to search themes: {str(e)}")
+
+
+async def update_themes(
+    site_id: str,
+    theme_slugs: Optional[List[str]] = None,
+    update_all: bool = False,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Update WordPress themes to their latest versions.
+
+    Args:
+        site_id: The ID of the site
+        theme_slugs: List of theme slugs to update (optional)
+        update_all: Update all themes with available updates
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
+
+    Returns:
+        Information about updated themes
+    """
+    try:
+        payload = {}
+
+        if update_all:
+            payload["update_all"] = True
+        elif theme_slugs:
+            payload["themes"] = theme_slugs
+        else:
+            return format_warning("Specify theme_slugs or set update_all=True")
+
+        response = await make_api_request(
+            method="PUT",
+            endpoint=f"/sites/{site_id}/themes",
+            json_data=payload,
+            username=username,
+            password=password
+        )
+        result = response.get("result", response.get("data", response))
+
+        return format_success(
+            "Themes updated successfully",
+            {
+                "site_id": site_id,
+                "updated_themes": result.get("updated", []),
+                "updated_count": result.get("updated_count", 0),
+                "failed_updates": result.get("failed", []),
+                "message": "Theme updates completed"
+            }
+        )
+
+    except Exception as e:
+        return format_error(f"Failed to update themes: {str(e)}")
+
+
 async def get_wordpress_status(
     site_id: str,
     username: Optional[str] = None,
