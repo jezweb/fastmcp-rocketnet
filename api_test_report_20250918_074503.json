@@ -1,0 +1,440 @@
+[
+  {
+    "method": "GET",
+    "endpoint": "/sites",
+    "name": "List sites",
+    "category": "Sites",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "metadata",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages",
+      "result"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763",
+    "name": "Get site",
+    "category": "Sites",
+    "requires": "SITE_ID",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/locations",
+    "name": "List locations",
+    "category": "Sites",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages",
+      "result"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/templates",
+    "name": "List templates",
+    "category": "Sites",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "metadata",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/plugins",
+    "name": "List plugins",
+    "category": "WordPress",
+    "requires": "SITE_ID",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "metadata",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages",
+      "result"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/themes",
+    "name": "List themes",
+    "category": "WordPress",
+    "requires": "SITE_ID",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "metadata",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages",
+      "result"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/plugins/search?search=contact",
+    "name": "Search plugins",
+    "category": "WordPress",
+    "requires": "SITE_ID",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "metadata",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages",
+      "result"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/themes/search?search=twenty",
+    "name": "Search themes",
+    "category": "WordPress",
+    "requires": "SITE_ID",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "metadata",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages",
+      "result"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/ssh-keys",
+    "name": "List SSH keys",
+    "category": "Access",
+    "requires": "SITE_ID",
+    "status": "HTTP_ERROR",
+    "status_code": 404,
+    "error": "HTTP 404",
+    "response_type": null,
+    "is_array": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/ftp-accounts",
+    "name": "List FTP accounts",
+    "category": "Access",
+    "requires": "SITE_ID",
+    "status": "HTTP_ERROR",
+    "status_code": 404,
+    "error": "HTTP 404",
+    "response_type": null,
+    "is_array": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/file-manager/files?path=/",
+    "name": "List files",
+    "category": "Access",
+    "requires": "SITE_ID",
+    "status": "HTTP_ERROR",
+    "status_code": 404,
+    "error": "HTTP 404",
+    "response_type": null,
+    "is_array": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/password-protection/users",
+    "name": "List protected users",
+    "category": "Access",
+    "requires": "SITE_ID",
+    "status": "HTTP_ERROR",
+    "status_code": 404,
+    "error": "HTTP 404",
+    "response_type": null,
+    "is_array": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/billing/products",
+    "name": "List products/plans",
+    "category": "Billing",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "metadata",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages",
+      "result"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/billing/invoices",
+    "name": "List invoices",
+    "category": "Billing",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "metadata",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages",
+      "result"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/billing/payment-methods",
+    "name": "List payment methods",
+    "category": "Billing",
+    "status": "HTTP_ERROR",
+    "status_code": 404,
+    "error": "HTTP 404",
+    "response_type": null,
+    "is_array": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/billing/addresses",
+    "name": "List billing addresses",
+    "category": "Billing",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "metadata",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages",
+      "result"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/account/users",
+    "name": "List account users",
+    "category": "Account",
+    "status": "HTTP_ERROR",
+    "status_code": 404,
+    "error": "HTTP 404",
+    "response_type": null,
+    "is_array": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/account/visitors",
+    "name": "Get visitor stats",
+    "category": "Account",
+    "status": "HTTP_ERROR",
+    "status_code": 400,
+    "error": "HTTP 400",
+    "response_type": null,
+    "is_array": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/account/usage",
+    "name": "Get usage stats",
+    "category": "Account",
+    "status": "NETWORK_ERROR",
+    "error": "",
+    "response_type": null,
+    "is_array": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/domains",
+    "name": "List domains",
+    "category": "Domains",
+    "requires": "SITE_ID",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "metadata",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/maindomain",
+    "name": "Get main domain",
+    "category": "Domains",
+    "requires": "SITE_ID",
+    "status": "SUCCESS",
+    "status_code": 200,
+    "response_type": "object",
+    "is_array": false,
+    "top_keys": [
+      "success",
+      "errors",
+      "messages",
+      "result"
+    ],
+    "array_keys": [
+      "errors",
+      "messages"
+    ],
+    "sample_count": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/backups",
+    "name": "List backups",
+    "category": "Backups",
+    "requires": "SITE_ID",
+    "status": "HTTP_ERROR",
+    "status_code": 404,
+    "error": "HTTP 404",
+    "response_type": null,
+    "is_array": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/cloud-backups",
+    "name": "List cloud backups",
+    "category": "Backups",
+    "requires": "SITE_ID",
+    "status": "HTTP_ERROR",
+    "status_code": 404,
+    "error": "HTTP 404",
+    "response_type": null,
+    "is_array": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/sites/24763/access-logs",
+    "name": "List access logs",
+    "category": "Analytics",
+    "requires": "SITE_ID",
+    "status": "HTTP_ERROR",
+    "status_code": 400,
+    "error": "HTTP 400",
+    "response_type": null,
+    "is_array": null
+  },
+  {
+    "method": "GET",
+    "endpoint": "/reporting/sites/24763/visitors",
+    "name": "Visitor report",
+    "category": "Analytics",
+    "requires": "SITE_ID",
+    "status": "HTTP_ERROR",
+    "status_code": 400,
+    "error": "HTTP 400",
+    "response_type": null,
+    "is_array": null
+  }
+]

@@ -2,6 +2,8 @@
 
 A comprehensive collection of Model Context Protocol (MCP) servers for interacting with the Rocket.net hosting platform API. Built with FastMCP for easy deployment to FastMCP Cloud.
 
+> **Important:** This project uses the Rocket.net API v1. The API may return different response formats depending on the authentication method used. See [API Response Formats](#api-response-formats) for details.
+
 ## Overview
 
 This repository contains a comprehensive suite of 8 specialized MCP servers that provide programmatic access to Rocket.net's hosting platform capabilities. Each server focuses on a specific domain of functionality, allowing for modular deployment and usage.
@@ -206,7 +208,54 @@ fastmcp dev src/server.py
 
 Each server can be deployed independently, allowing you to use only the functionality you need.
 
+## API Response Formats
+
+The Rocket.net API v1 returns different response structures depending on the authentication method:
+
+### Bearer Token Authentication
+When using a bearer token directly, the API returns a wrapper object:
+
+```json
+{
+  "success": true,
+  "errors": [],
+  "messages": [],
+  "result": [/* actual data */]  // or object for single items
+}
+```
+
+### MCP Tool Authentication
+When our MCP tools authenticate (using username/password to get tokens), responses may be returned directly:
+
+```json
+[
+  {"id": 1, "name": "Site 1"},
+  {"id": 2, "name": "Site 2"}
+]
+```
+
+Our tools handle both formats automatically, checking for:
+1. Direct arrays
+2. Data in `result` key
+3. Data in `data` key
+4. Data in endpoint-specific keys (e.g., `sites`, `plugins`)
+
 ## Development
+
+### Testing API Endpoints
+
+We provide a test script to verify API response formats:
+
+```bash
+# Copy and configure the test environment
+cp .env.template .env
+# Add your ROCKETNET_BEARER_TOKEN to .env
+
+# Run the test script
+python test_api_endpoints.py
+```
+
+This will show you exactly how each endpoint returns data with your authentication method.
 
 ### Project Structure
 
