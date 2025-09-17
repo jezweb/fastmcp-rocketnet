@@ -12,12 +12,10 @@ The project uses a modular multi-server approach where each server handles speci
 
 - **rocketnet-sites** - Core site management and infrastructure
 - **rocketnet-domains** - Domain and DNS management
-- **rocketnet-wordpress** - WordPress-specific operations
 - **rocketnet-backups** - Backup and recovery operations
-- **rocketnet-analytics** - Reporting and analytics
-- **rocketnet-billing** - Billing and account management
+- **rocketnet-performance** - CDN cache and performance monitoring
 
-All servers share common utilities through the `rocketnet-shared` package.
+Each server is completely independent and self-contained for FastMCP Cloud compatibility.
 
 ## Quick Start
 
@@ -35,26 +33,19 @@ git clone https://github.com/jezweb/fastmcp-rocketnet.git
 cd fastmcp-rocketnet
 ```
 
-2. Install the shared package:
+2. Install server dependencies:
 ```bash
-cd rocketnet-shared
-pip install -e .
-cd ..
-```
-
-3. Install server dependencies:
-```bash
-cd rocketnet-sites
+cd rocketnet-sites  # or any other server directory
 pip install -r requirements.txt
 ```
 
-4. Configure environment variables:
+3. Configure environment variables (optional):
 ```bash
 cp .env.example .env
 # Edit .env with your Rocket.net credentials
 ```
 
-5. Run a server locally:
+4. Run a server locally:
 ```bash
 fastmcp dev src/server.py
 ```
@@ -111,41 +102,31 @@ Core site operations including creation, configuration, and monitoring.
 Handle domains, DNS records, and SSL certificates.
 
 **Key Tools:**
-- `add_domain` - Add a domain to a site
-- `manage_dns` - Update DNS records
-- `configure_ssl` - Manage SSL certificates
+- `list_domains` - List all additional domains for a site
+- `add_domain` - Add a domain alias to a site
+- `get_main_domain` - Get main domain info and SSL status
+- `set_main_domain` - Set the main domain for a site
+- `update_domain_edge_settings` - Configure CDN/edge settings
 
-### 3. WordPress Management (`rocketnet-wordpress`)
-WordPress-specific operations for plugins, themes, and updates.
-
-**Key Tools:**
-- `install_plugin` - Install WordPress plugins
-- `update_themes` - Manage WordPress themes
-- `create_staging` - Create staging environments
-
-### 4. Backup & Recovery (`rocketnet-backups`)
+### 3. Backup & Recovery (`rocketnet-backups`)
 Comprehensive backup management and disaster recovery.
 
 **Key Tools:**
 - `create_backup` - Create manual backups
+- `list_backups` - View all backups for a site
 - `restore_backup` - Restore from backups
-- `schedule_backups` - Configure automatic backups
+- `schedule_backup` - Configure automatic backups
+- `download_backup` - Get backup download links
 
-### 5. Analytics & Reporting (`rocketnet-analytics`)
-Access CDN statistics, bandwidth usage, and visitor analytics.
-
-**Key Tools:**
-- `get_cdn_stats` - CDN usage statistics
-- `visitor_analytics` - Traffic analysis
-- `performance_metrics` - Site performance data
-
-### 6. Billing & Account (`rocketnet-billing`)
-Manage invoices, payments, and account settings.
+### 4. Performance & CDN (`rocketnet-performance`)
+CDN cache management, bandwidth monitoring, and visitor analytics.
 
 **Key Tools:**
-- `get_invoices` - Access billing history
-- `update_payment` - Manage payment methods
-- `change_plan` - Modify hosting plans
+- `purge_cache_files` - Clear specific cached files
+- `purge_all_cache` - Clear entire site cache
+- `get_cdn_requests_report` - View CDN traffic patterns
+- `get_visitors_report` - Analyze visitor demographics
+- `get_bandwidth_usage` - Monitor bandwidth consumption
 
 ## Deployment
 
@@ -158,8 +139,8 @@ Each server can be run independently:
 cd rocketnet-sites
 fastmcp dev src/server.py
 
-# Run WordPress management server
-cd rocketnet-wordpress
+# Run domains management server
+cd rocketnet-domains
 fastmcp dev src/server.py
 ```
 
@@ -178,17 +159,21 @@ Each server can be deployed independently, allowing you to use only the function
 
 ```
 fastmcp-rocketnet/
-├── rocketnet-shared/       # Shared utilities
 ├── rocketnet-sites/        # Sites management server
 ├── rocketnet-domains/      # Domains server
-├── rocketnet-wordpress/    # WordPress server
 ├── rocketnet-backups/      # Backups server
-├── rocketnet-analytics/    # Analytics server
-├── rocketnet-billing/      # Billing server
+├── rocketnet-performance/  # Performance server
 ├── README.md
 ├── SCRATCHPAD.md          # Development notes
 └── DEPLOYMENT.md          # Deployment guide
 ```
+
+Each server is self-contained with its own:
+- `src/server.py` - FastMCP server definition
+- `src/auth.py` - Authentication module
+- `src/utils.py` - Utility functions
+- `src/tools/` - Tool implementations
+- `requirements.txt` - Python dependencies
 
 ### Testing
 
