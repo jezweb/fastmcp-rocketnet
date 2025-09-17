@@ -6,11 +6,11 @@ import sys
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
-# Add parent directory to path for shared imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+# Add parent directory to path for local imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from rocketnet_shared import (
-    make_api_request,
+from auth import make_api_request
+from utils import (
     format_success,
     format_error,
     format_warning,

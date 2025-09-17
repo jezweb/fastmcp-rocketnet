@@ -8,11 +8,8 @@ import os
 import sys
 from pathlib import Path
 
-# Add parent directory to path for shared imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from fastmcp import FastMCP
-from rocketnet_shared import Config, RocketnetClient, format_success, format_error
+from utils import format_success, format_error
 
 # Import tools
 from tools.sites import (
@@ -38,11 +35,7 @@ from tools.plans import (
     change_site_plan,
 )
 
-# Import resources
-from resources.dashboards import (
-    get_site_dashboard,
-    get_all_sites_status,
-)
+# Resources are now handled directly in server.py
 
 # Initialize FastMCP server - MUST be at module level for FastMCP Cloud
 mcp = FastMCP(
@@ -94,21 +87,43 @@ mcp.tool(change_site_plan)
 async def site_dashboard_resource(site_id: str) -> str:
     """Get complete dashboard for a specific site."""
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            return await get_site_dashboard(client, site_id)
+        from auth import make_api_request
+        import json
+
+        # Get site info
+        site_data = await make_api_request("GET", f"/sites/{site_id}")
+
+        # Return formatted dashboard
+        dashboard = {
+            "site_id": site_id,
+            "site": site_data.get("site", site_data),
+            "status": "active"
+        }
+        return json.dumps(dashboard, indent=2)
     except Exception as e:
-        return format_error(f"Failed to get site dashboard: {str(e)}")
+        import json
+        return json.dumps({"error": str(e)}, indent=2)
 
 @mcp.resource("sites://all/status")
 async def all_sites_status_resource() -> str:
     """Get status overview of all sites."""
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            return await get_all_sites_status(client)
+        from auth import make_api_request
+        import json
+
+        # Get all sites
+        response = await make_api_request("GET", "/sites")
+        sites = response.get("sites", response.get("data", []))
+
+        # Return formatted status
+        status = {
+            "total_sites": len(sites),
+            "sites": sites
+        }
+        return json.dumps(status, indent=2)
     except Exception as e:
-        return format_error(f"Failed to get sites status: {str(e)}")
+        import json
+        return json.dumps({"error": str(e)}, indent=2)
 
 # Optional: Local testing
 if __name__ == "__main__":

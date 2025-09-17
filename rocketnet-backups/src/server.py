@@ -8,11 +8,8 @@ import os
 import sys
 from pathlib import Path
 
-# Add parent directory to path for shared imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from fastmcp import FastMCP
-from rocketnet_shared import Config, RocketnetClient, format_success, format_error
+from utils import format_success, format_error
 
 # Import tools
 from tools.backups import (
@@ -77,17 +74,21 @@ mcp.tool(delete_backup_schedule)
 async def recent_backups_resource(site_id: str) -> str:
     """Get recent backups for a site."""
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            response = await client.get(f"/sites/{site_id}/backups", params={"limit": 10})
-            backups = response.get("backups", response.get("data", []))
+        from auth import make_api_request
+        import json
 
-            import json
-            return json.dumps({
-                "site_id": site_id,
-                "recent_backups": backups,
-                "count": len(backups)
-            }, indent=2)
+        response = await make_api_request(
+            "GET",
+            f"/sites/{site_id}/backups",
+            params={"limit": 10}
+        )
+        backups = response.get("backups", response.get("data", []))
+
+        return json.dumps({
+            "site_id": site_id,
+            "recent_backups": backups,
+            "count": len(backups)
+        }, indent=2)
     except Exception as e:
         import json
         return json.dumps({"error": str(e)}, indent=2)
