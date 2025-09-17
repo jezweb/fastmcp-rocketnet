@@ -9,7 +9,7 @@ from typing import Optional, Dict, Any, Union
 import httpx
 from urllib.parse import urljoin
 
-from .auth import RocketnetAuth
+from .auth import get_auth_headers
 from .config import Config
 from .exceptions import (
     RocketnetAPIError,
@@ -20,6 +20,84 @@ from .exceptions import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+async def make_api_request(
+    method: str,
+    endpoint: str,
+    username: Optional[str] = None,
+    password: Optional[str] = None,
+    json_data: Optional[Dict[str, Any]] = None,
+    params: Optional[Dict[str, Any]] = None,
+    api_base: str = "https://api.rocket.net/v1"
+) -> Dict[str, Any]:
+    """
+    Make an authenticated API request to Rocket.net.
+
+    This is a simple helper that:
+    1. Gets auth headers (handles login automatically)
+    2. Makes the API request
+    3. Returns the response
+
+    Args:
+        method: HTTP method (GET, POST, PUT, DELETE, etc.)
+        endpoint: API endpoint (e.g., "/sites" or "sites")
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
+        json_data: JSON body for POST/PUT requests
+        params: Query parameters for GET requests
+        api_base: Base API URL
+
+    Returns:
+        Response data as dictionary
+
+    Raises:
+        RocketnetAPIError: For API errors
+        AuthenticationError: For auth failures
+    """
+    # Get auth headers (this handles login automatically)
+    headers = await get_auth_headers(username, password, api_base)
+
+    # Ensure endpoint starts with /
+    if not endpoint.startswith("/"):
+        endpoint = f"/{endpoint}"
+
+    # Build full URL
+    url = f"{api_base}{endpoint}"
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.request(
+                method=method.upper(),
+                url=url,
+                headers=headers,
+                json=json_data,
+                params=params
+            )
+
+            # Handle response
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 201:
+                return response.json()
+            elif response.status_code == 204:
+                return {"success": True, "message": "Operation completed"}
+            elif response.status_code == 404:
+                raise NotFoundError(f"Resource not found: {endpoint}")
+            elif response.status_code == 400:
+                raise ValidationError(f"Bad request: {response.text}")
+            elif response.status_code == 401:
+                raise RocketnetAPIError("Authentication failed - invalid token")
+            elif response.status_code == 429:
+                raise RateLimitError("Rate limit exceeded")
+            elif response.status_code >= 500:
+                raise ServerError(f"Server error: {response.status_code}")
+            else:
+                raise RocketnetAPIError(f"Unexpected response: {response.status_code} - {response.text}")
+
+    except httpx.RequestError as e:
+        logger.error(f"Network error: {e}")
+        raise RocketnetAPIError(f"Network error: {str(e)}")
 
 
 class RocketnetClient:

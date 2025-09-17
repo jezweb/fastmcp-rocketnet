@@ -11,8 +11,7 @@ from datetime import datetime
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from rocketnet_shared import (
-    Config,
-    RocketnetClient,
+    make_api_request,
     format_success,
     format_error,
     format_warning,
@@ -25,7 +24,9 @@ async def create_backup(
     site_id: str,
     backup_type: str = "full",
     description: Optional[str] = None,
-    notification_email: Optional[str] = None
+    notification_email: Optional[str] = None,
+    username: Optional[str] = None,
+    password: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Create a manual backup of a site.
@@ -35,37 +36,43 @@ async def create_backup(
         backup_type: Type of backup (full, database, files, incremental)
         description: Optional description for the backup
         notification_email: Email to notify when backup completes
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Information about the created backup
     """
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            payload = {
-                "type": backup_type
+        payload = {
+            "type": backup_type
+        }
+
+        if description:
+            payload["description"] = description
+        if notification_email:
+            payload["notification_email"] = notification_email
+
+        response = await make_api_request(
+            method="POST",
+            endpoint=f"/sites/{site_id}/backups",
+            username=username,
+            password=password,
+            json_data=payload
+        )
+        backup = response.get("backup", response.get("data", response))
+
+        return format_success(
+            f"Backup initiated for site {site_id}",
+            {
+                "backup_id": backup.get("id"),
+                "type": backup.get("type"),
+                "status": backup.get("status", "in_progress"),
+                "started_at": format_datetime(backup.get("started_at")),
+                "estimated_completion": format_datetime(backup.get("estimated_completion")),
+                "description": backup.get("description"),
+                "message": "Backup is being created. This may take several minutes depending on site size."
             }
-
-            if description:
-                payload["description"] = description
-            if notification_email:
-                payload["notification_email"] = notification_email
-
-            response = await client.post(f"/sites/{site_id}/backups", payload)
-            backup = response.get("backup", response.get("data", response))
-
-            return format_success(
-                f"Backup initiated for site {site_id}",
-                {
-                    "backup_id": backup.get("id"),
-                    "type": backup.get("type"),
-                    "status": backup.get("status", "in_progress"),
-                    "started_at": format_datetime(backup.get("started_at")),
-                    "estimated_completion": format_datetime(backup.get("estimated_completion")),
-                    "description": backup.get("description"),
-                    "message": "Backup is being created. This may take several minutes depending on site size."
-                }
-            )
+        )
 
     except Exception as e:
         return format_error(f"Failed to create backup for site {site_id}: {str(e)}")

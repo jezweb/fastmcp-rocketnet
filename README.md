@@ -59,15 +59,42 @@ cp .env.example .env
 fastmcp dev src/server.py
 ```
 
-## Configuration
+## Authentication
 
-Each server requires the following environment variables:
+The servers support flexible authentication - you can either set environment variables once for personal use, or provide credentials with each tool call for shared/multi-tenant scenarios.
+
+### Option 1: Environment Variables (Personal Use)
+
+Set these once in your `.env` file or environment:
 
 ```env
-ROCKETNET_EMAIL=your-email@example.com
+ROCKETNET_USERNAME=your-email@example.com
 ROCKETNET_PASSWORD=your-password
-ROCKETNET_API_BASE=https://control.rocket.net/api  # Optional
 ```
+
+Then use tools without any auth parameters:
+```python
+result = await list_sites()
+```
+
+### Option 2: Direct Authentication (Shared Use)
+
+Pass credentials directly with each tool call:
+
+```python
+result = await list_sites(
+    username="your-email@example.com",
+    password="your-password"
+)
+```
+
+This approach is ideal for:
+- Shared MCP servers
+- Multi-tenant scenarios
+- AI assistants that manage multiple accounts
+- Situations where you don't want to store credentials
+
+**Note:** The server automatically handles JWT token generation behind the scenes. You never need to manage tokens directly.
 
 ## Available Servers
 

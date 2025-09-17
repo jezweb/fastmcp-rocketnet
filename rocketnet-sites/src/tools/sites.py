@@ -10,8 +10,7 @@ from typing import Optional, Dict, Any, List
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from rocketnet_shared import (
-    Config,
-    RocketnetClient,
+    make_api_request,
     format_success,
     format_error,
     format_warning,
@@ -22,7 +21,9 @@ from rocketnet_shared import (
 async def list_sites(
     status: Optional[str] = None,
     plan: Optional[str] = None,
-    location: Optional[str] = None
+    location: Optional[str] = None,
+    username: Optional[str] = None,
+    password: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     List all sites in your Rocket.net account.
@@ -31,56 +32,71 @@ async def list_sites(
         status: Filter by site status (active, suspended, pending)
         plan: Filter by hosting plan
         location: Filter by data center location
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         List of sites with their basic information
     """
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            params = {}
-            if status:
-                params["status"] = status
-            if plan:
-                params["plan"] = plan
-            if location:
-                params["location"] = location
+        params = {}
+        if status:
+            params["status"] = status
+        if plan:
+            params["plan"] = plan
+        if location:
+            params["location"] = location
 
-            response = await client.get("/sites", params=params)
+        response = await make_api_request(
+            method="GET",
+            endpoint="/sites",
+            username=username,
+            password=password,
+            params=params
+        )
 
-            # Format site information
-            sites = response.get("sites", response.get("data", []))
-            formatted_sites = [format_site_info(site) for site in sites]
+        # Format site information
+        sites = response.get("sites", response.get("data", []))
+        formatted_sites = [format_site_info(site) for site in sites]
 
-            return format_success(
-                f"Found {len(formatted_sites)} sites",
-                {"sites": formatted_sites, "count": len(formatted_sites)}
-            )
+        return format_success(
+            f"Found {len(formatted_sites)} sites",
+            {"sites": formatted_sites, "count": len(formatted_sites)}
+        )
 
     except Exception as e:
         return format_error(f"Failed to list sites: {str(e)}")
 
 
-async def get_site(site_id: str) -> Dict[str, Any]:
+async def get_site(
+    site_id: str,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
     """
     Get detailed information about a specific site.
 
     Args:
         site_id: The ID of the site to retrieve
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Detailed site information including configuration and status
     """
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            response = await client.get(f"/sites/{site_id}")
-            site = response.get("site", response.get("data", response))
+        response = await make_api_request(
+            method="GET",
+            endpoint=f"/sites/{site_id}",
+            username=username,
+            password=password
+        )
+        site = response.get("site", response.get("data", response))
 
-            return format_success(
-                f"Retrieved site: {site.get('name', site_id)}",
-                format_site_info(site)
-            )
+        return format_success(
+            f"Retrieved site: {site.get('name', site_id)}",
+            format_site_info(site)
+        )
 
     except Exception as e:
         return format_error(f"Failed to get site {site_id}: {str(e)}")
@@ -94,7 +110,9 @@ async def create_site(
     wordpress_version: Optional[str] = None,
     php_version: Optional[str] = "8.2",
     admin_email: Optional[str] = None,
-    admin_username: Optional[str] = "admin"
+    admin_username: Optional[str] = "admin",
+    username: Optional[str] = None,
+    password: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Create a new WordPress site on Rocket.net.
@@ -108,42 +126,46 @@ async def create_site(
         php_version: PHP version (7.4, 8.0, 8.1, 8.2)
         admin_email: WordPress admin email
         admin_username: WordPress admin username
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Information about the created site
     """
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            payload = {
-                "name": name,
-                "domain": domain,
-                "plan": plan,
-                "location": location,
-                "php_version": php_version,
-                "admin_username": admin_username
+        payload = {
+            "name": name,
+            "domain": domain,
+            "plan": plan,
+            "location": location,
+            "php_version": php_version,
+            "admin_username": admin_username
+        }
+
+        if wordpress_version:
+            payload["wordpress_version"] = wordpress_version
+        if admin_email:
+            payload["admin_email"] = admin_email
+
+        response = await make_api_request(
+            method="POST",
+            endpoint="/sites",
+            username=username,
+            password=password,
+            json_data=payload
+        )
+
+        site = response.get("site", response.get("data", response))
+
+        return format_success(
+            f"Site '{name}' created successfully",
+            {
+                "site": format_site_info(site),
+                "login_url": f"https://{domain}/wp-admin",
+                "temporary_url": site.get("temporary_url"),
+                "setup_status": "Site is being provisioned. This may take a few minutes."
             }
-
-            if wordpress_version:
-                payload["wordpress_version"] = wordpress_version
-            if admin_email:
-                payload["admin_email"] = admin_email
-            else:
-                payload["admin_email"] = config.email
-
-            response = await client.post("/sites", payload)
-
-            site = response.get("site", response.get("data", response))
-
-            return format_success(
-                f"Site '{name}' created successfully",
-                {
-                    "site": format_site_info(site),
-                    "login_url": f"https://{domain}/wp-admin",
-                    "temporary_url": site.get("temporary_url"),
-                    "setup_status": "Site is being provisioned. This may take a few minutes."
-                }
-            )
+        )
 
     except Exception as e:
         return format_error(f"Failed to create site: {str(e)}")
