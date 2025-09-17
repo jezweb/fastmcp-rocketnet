@@ -38,7 +38,8 @@ async def list_ssh_keys(
             username=username,
             password=password
         )
-        keys = response.get("ssh_keys", response.get("data", []))
+        # API returns data in 'result' key
+        keys = response.get("result", [])
 
         formatted_keys = []
         for key in keys:
@@ -99,7 +100,8 @@ async def add_ssh_key(
             username=username,
             password=password
         )
-        key_info = response.get("ssh_key", response.get("data", response))
+        # SSH key info is in 'result' key
+        key_info = response.get("result", response)
 
         return format_success(
             f"SSH key '{name}' added to site {site_id}",
@@ -218,7 +220,8 @@ async def list_ftp_accounts(
             username=username,
             password=password
         )
-        accounts = response.get("ftp_accounts", response.get("data", []))
+        # FTP accounts are in 'result' key
+        accounts = response.get("result", [])
 
         formatted_accounts = []
         for account in accounts:
@@ -279,7 +282,8 @@ async def create_ftp_account(
             username=ftp_username,
             password=ftp_password
         )
-        account = response.get("ftp_account", response.get("data", response))
+        # FTP account is in 'result' key
+        account = response.get("result", response)
 
         return format_success(
             f"FTP account '{username}' created",
@@ -369,7 +373,8 @@ async def list_files(
             username=username,
             password=password
         )
-        files = response.get("files", response.get("data", []))
+        # Files are in 'result' key
+        files = response.get("result", [])
 
         formatted_files = []
         for file in files:
@@ -436,7 +441,8 @@ async def upload_file(
             username=username,
             password=password
         )
-        file_info = response.get("file", response.get("data", response))
+        # File info is in 'result' key
+        file_info = response.get("result", response)
 
         return format_success(
             f"File uploaded to {remote_path}",
@@ -526,7 +532,8 @@ async def compress_files(
             username=username,
             password=password
         )
-        archive = response.get("archive", response.get("data", response))
+        # Archive info is in 'result' key
+        archive = response.get("result", response)
 
         return format_success(
             f"Archive created: {archive_name}",
@@ -577,7 +584,8 @@ async def extract_archive(
             username=username,
             password=password
         )
-        result = response.get("result", response.get("data", response))
+        # Response is in 'result' key
+        result = response.get("result", response)
 
         return format_success(
             f"Archive extracted: {archive_path}",
@@ -624,7 +632,8 @@ async def create_staging_site(
             username=username,
             password=password
         )
-        staging = response.get("staging", response.get("data", response))
+        # Staging info is in 'result' key
+        staging = response.get("result", response)
 
         return format_success(
             f"Staging site created for site {site_id}",
@@ -671,7 +680,8 @@ async def publish_staging(
             username=username,
             password=password
         )
-        result = response.get("result", response.get("data", response))
+        # Response is in 'result' key
+        result = response.get("result", response)
 
         return format_success(
             "Staging site publishing to production",
@@ -748,7 +758,8 @@ async def get_phpmyadmin_login(
             username=username,
             password=password
         )
-        login_info = response.get("login", response.get("data", response))
+        # Login info is in 'result' key
+        login_info = response.get("result", response)
 
         return format_success(
             "phpMyAdmin SSO URL generated",
@@ -788,7 +799,8 @@ async def get_password_protection_status(
             username=username,
             password=password
         )
-        protection = response.get("protection", response.get("data", response))
+        # Protection info is in 'result' key
+        protection = response.get("result", response)
 
         return format_success(
             "Password protection status retrieved",

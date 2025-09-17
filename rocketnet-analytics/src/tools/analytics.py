@@ -47,7 +47,8 @@ async def get_access_logs(
             username=username,
             password=password
         )
-        logs = response.get("logs", response.get("data", []))
+        # Logs are in 'result' key
+        logs = response.get("result", [])
 
         formatted_logs = []
         for log in logs[:limit]:
@@ -110,7 +111,8 @@ async def get_waf_events(
             username=username,
             password=password
         )
-        events = response.get("events", response.get("data", []))
+        # Events are in 'result' key
+        events = response.get("result", [])
 
         formatted_events = []
         for event in events[:50]:  # Limit to 50 most recent
@@ -173,7 +175,8 @@ async def get_waf_events_by_source(
             username=username,
             password=password
         )
-        sources = response.get("sources", response.get("data", []))
+        # Sources are in 'result' key
+        sources = response.get("result", [])
 
         top_sources = []
         for source in sources[:10]:  # Top 10 sources
@@ -231,7 +234,8 @@ async def get_firewall_events_timeline(
             username=username,
             password=password
         )
-        timeline = response.get("timeline", response.get("data", []))
+        # Timeline is in 'result' key
+        timeline = response.get("result", [])
 
         formatted_timeline = []
         for point in timeline:
@@ -290,7 +294,8 @@ async def get_request_volume_by_source(
             username=username,
             password=password
         )
-        sources = response.get("sources", response.get("data", []))
+        # Sources are in 'result' key
+        sources = response.get("result", [])
 
         top_sources = []
         for source in sources[:15]:  # Top 15 sources
@@ -352,7 +357,8 @@ async def get_total_requests_report(
             username=username,
             password=password
         )
-        report = response.get("report", response.get("data", response))
+        # Report is in 'result' key
+        report = response.get("result", response)
 
         return format_success(
             "Total requests report",
@@ -416,7 +422,8 @@ async def get_account_visitors_overview(
             username=username,
             password=password
         )
-        overview = response.get("overview", response.get("data", response))
+        # Overview is in 'result' key
+        overview = response.get("result", response)
 
         sites_summary = []
         for site in overview.get("sites", [])[:10]:  # Top 10 sites
@@ -488,8 +495,9 @@ async def get_site_health_report(
             password=password
         )
 
-        perf_data = perf_response.get("report", perf_response.get("data", {}))
-        waf_data = waf_response.get("events", waf_response.get("data", []))
+        # Performance and WAF data are in 'result' key
+        perf_data = perf_response.get("result", {})
+        waf_data = waf_response.get("result", [])
 
         health_score = 100
         issues = []

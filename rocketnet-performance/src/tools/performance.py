@@ -44,7 +44,8 @@ async def purge_cache_files(
             username=username,
             password=password
         )
-        result = response.get("result", response.get("data", response))
+        # Response is in 'result' key
+        result = response.get("result", response)
 
         return format_success(
             f"Cache purge initiated for {len(files)} files",
@@ -96,7 +97,8 @@ async def purge_all_cache(
             username=username,
             password=password
         )
-        result = response.get("result", response.get("data", response))
+        # Response is in 'result' key
+        result = response.get("result", response)
 
         return format_success(
             f"Full cache purge initiated for site {site_id}",
@@ -141,7 +143,8 @@ async def get_cdn_requests_report(
             username=username,
             password=password
         )
-        report = response.get("report", response.get("data", response))
+        # Report is in 'result' key
+        report = response.get("result", response)
 
         return format_success(
             f"CDN requests report for site {site_id}",
@@ -197,7 +200,8 @@ async def get_cache_status_report(
             username=username,
             password=password
         )
-        report = response.get("report", response.get("data", response))
+        # Report is in 'result' key
+        report = response.get("result", response)
 
         return format_success(
             "CDN cache status report",
@@ -255,7 +259,8 @@ async def get_cache_content_report(
             username=username,
             password=password
         )
-        report = response.get("report", response.get("data", response))
+        # Report is in 'result' key
+        report = response.get("result", response)
 
         return format_success(
             "CDN cache content report",
@@ -332,7 +337,8 @@ async def get_visitors_report(
             username=username,
             password=password
         )
-        report = response.get("report", response.get("data", response))
+        # Report is in 'result' key
+        report = response.get("result", response)
 
         return format_success(
             f"Visitors report for site {site_id}",
@@ -392,7 +398,8 @@ async def get_bandwidth_usage(
             username=username,
             password=password
         )
-        report = response.get("report", response.get("data", response))
+        # Report is in 'result' key
+        report = response.get("result", response)
 
         return format_success(
             "Bandwidth usage report",
@@ -446,7 +453,8 @@ async def get_top_bandwidth_consumers(
             username=username,
             password=password
         )
-        report = response.get("report", response.get("data", response))
+        # Report is in 'result' key
+        report = response.get("result", response)
 
         top_consumers = []
         for item in report.get("top_consumers", [])[:limit]:

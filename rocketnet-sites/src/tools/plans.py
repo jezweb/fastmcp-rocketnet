@@ -45,11 +45,8 @@ async def list_plans(
             username=username,
             password=password
         )
-        # Handle direct array or nested response
-        if isinstance(response, list):
-            plans = response
-        else:
-            plans = response.get("plans", response.get("data", [])) if isinstance(response, dict) else []
+        # API returns data in 'result' key
+        plans = response.get("result", [])
 
         formatted_plans = []
         for plan in plans:
@@ -110,7 +107,8 @@ async def get_plan_details(
             username=username,
             password=password
         )
-        plan = response.get("plan", response.get("data", response))
+        # Single plan response is in 'result' key
+        plan = response.get("result", response)
 
         return format_success(
             f"Plan details for {plan.get('name', plan_id)}",
@@ -211,7 +209,8 @@ async def change_site_plan(
             username=username,
             password=password
         )
-        site = site_response.get("site", site_response.get("data", {}))
+        # Get site from result key
+        site = site_response.get("result", {})
         current_plan = site.get("plan")
 
         # Change the plan

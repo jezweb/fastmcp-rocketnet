@@ -44,7 +44,8 @@ async def list_invoices(
             username=username,
             password=password
         )
-        invoices = response.get("invoices", response.get("data", []))
+        # API returns data in 'result' key
+        invoices = response.get("result", [])
 
         formatted_invoices = []
         total_amount = 0
@@ -101,7 +102,8 @@ async def get_invoice(
             username=username,
             password=password
         )
-        invoice = response.get("invoice", response.get("data", response))
+        # Single invoice response is in 'result' key
+        invoice = response.get("result", response)
 
         line_items = []
         for item in invoice.get("line_items", []):
@@ -156,7 +158,8 @@ async def download_invoice_pdf(
             username=username,
             password=password
         )
-        pdf_info = response.get("pdf", response.get("data", response))
+        # PDF info is in 'result' key
+        pdf_info = response.get("result", response)
 
         return format_success(
             "Invoice PDF URL generated",
@@ -193,7 +196,8 @@ async def list_payment_methods(
             username=username,
             password=password
         )
-        methods = response.get("payment_methods", response.get("data", []))
+        # Payment methods are in 'result' key
+        methods = response.get("result", [])
 
         formatted_methods = []
         for method in methods:
@@ -254,7 +258,8 @@ async def add_payment_method(
             username=username,
             password=password
         )
-        method = response.get("payment_method", response.get("data", response))
+        # Payment method is in 'result' key
+        method = response.get("result", response)
 
         return format_success(
             "Payment method added successfully",
@@ -327,7 +332,8 @@ async def list_billing_addresses(
             username=username,
             password=password
         )
-        addresses = response.get("addresses", response.get("data", []))
+        # Addresses are in 'result' key
+        addresses = response.get("result", [])
 
         formatted_addresses = []
         for address in addresses:
@@ -383,7 +389,8 @@ async def get_account_usage(
             username=username,
             password=password
         )
-        usage = response.get("usage", response.get("data", response))
+        # Usage data is in 'result' key
+        usage = response.get("result", response)
 
         return format_success(
             f"Account usage for {period} period",
@@ -437,7 +444,8 @@ async def list_account_users(
             username=username,
             password=password
         )
-        users = response.get("users", response.get("data", []))
+        # Users are in 'result' key
+        users = response.get("result", [])
 
         formatted_users = []
         for user in users:
@@ -503,7 +511,8 @@ async def add_account_user(
             username=username,
             password=password
         )
-        user = response.get("user", response.get("data", response))
+        # User data is in 'result' key
+        user = response.get("result", response)
 
         return format_success(
             f"User {email} added to account",
@@ -583,7 +592,8 @@ async def get_available_products(
             username=username,
             password=password
         )
-        products = response.get("products", response.get("data", []))
+        # Products are in 'result' key
+        products = response.get("result", [])
 
         formatted_products = []
         for product in products:

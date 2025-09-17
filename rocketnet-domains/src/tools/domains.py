@@ -36,7 +36,8 @@ async def list_domains(
             username=username,
             password=password
         )
-        domains = response.get("domains", response.get("data", []))
+        # API returns data in 'result' key
+        domains = response.get("result", [])
 
         return format_success(
             f"Found {len(domains)} additional domains for site {site_id}",
@@ -84,7 +85,8 @@ async def add_domain(
             username=username,
             password=password
         )
-        domain_info = response.get("domain", response.get("data", response))
+        # Domain info is in 'result' key
+        domain_info = response.get("result", response)
 
         return format_success(
             f"Domain {domain} added to site {site_id}",
@@ -163,7 +165,8 @@ async def get_main_domain(
             username=username,
             password=password
         )
-        domain = response.get("domain", response.get("data", response))
+        # Domain is in 'result' key
+        domain = response.get("result", response)
 
         return format_success(
             "Main domain information retrieved",
@@ -220,7 +223,8 @@ async def set_main_domain(
             username=username,
             password=password
         )
-        domain_info = response.get("domain", response.get("data", response))
+        # Domain info is in 'result' key
+        domain_info = response.get("result", response)
 
         return format_success(
             f"Main domain set to {domain} for site {site_id}",
@@ -275,7 +279,8 @@ async def replace_main_domain(
             username=username,
             password=password
         )
-        domain_info = response.get("domain", response.get("data", response))
+        # Domain info is in 'result' key
+        domain_info = response.get("result", response)
 
         return format_success(
             f"Main domain replaced with {new_domain} for site {site_id}",
@@ -330,7 +335,8 @@ async def update_main_domain_ssl(
             username=username,
             password=password
         )
-        domain_info = response.get("domain", response.get("data", response))
+        # Domain info is in 'result' key
+        domain_info = response.get("result", response)
 
         return format_success(
             "Main domain SSL settings updated",
@@ -373,7 +379,8 @@ async def get_domain_edge_settings(
             username=username,
             password=password
         )
-        settings = response.get("edge_settings", response.get("data", response))
+        # Edge settings are in 'result' key
+        settings = response.get("result", response)
 
         return format_success(
             "Edge settings retrieved",
@@ -447,7 +454,8 @@ async def update_domain_edge_settings(
             username=username,
             password=password
         )
-        settings = response.get("edge_settings", response.get("data", response))
+        # Edge settings are in 'result' key
+        settings = response.get("result", response)
 
         return format_success(
             "Edge settings updated",

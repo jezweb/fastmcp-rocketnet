@@ -55,12 +55,8 @@ async def list_sites(
             params=params
         )
 
-        # The API returns sites as a direct array
-        if isinstance(response, list):
-            sites = response
-        else:
-            # Fallback for other possible formats
-            sites = response.get("sites", response.get("data", [])) if isinstance(response, dict) else []
+        # API returns data in 'result' key when using bearer token auth
+        sites = response.get("result", [])
         formatted_sites = [format_site_info(site) for site in sites]
 
         return format_success(
@@ -95,7 +91,8 @@ async def get_site(
             username=username,
             password=password
         )
-        site = response.get("site", response.get("data", response))
+        # Single site response is in 'result' key
+        site = response.get("result", response)
 
         return format_success(
             f"Retrieved site: {site.get('name', site_id)}",
@@ -159,7 +156,8 @@ async def create_site(
             json_data=payload
         )
 
-        site = response.get("site", response.get("data", response))
+        # Single site response is in 'result' key
+        site = response.get("result", response)
 
         return format_success(
             f"Site '{name}' created successfully",
@@ -217,7 +215,8 @@ async def update_site(
                 return format_warning("No updates provided")
 
             response = await client.patch(f"/sites/{site_id}", payload)
-            site = response.get("site", response.get("data", response))
+            # Single site response is in 'result' key
+        site = response.get("result", response)
 
             return format_success(
                 f"Site {site_id} updated successfully",
@@ -342,7 +341,8 @@ async def clone_site(
                 payload["plan"] = plan
 
             response = await client.post("/sites/clone", payload)
-            site = response.get("site", response.get("data", response))
+            # Single site response is in 'result' key
+        site = response.get("result", response)
 
             return format_success(
                 f"Site cloned successfully as '{new_name}'",

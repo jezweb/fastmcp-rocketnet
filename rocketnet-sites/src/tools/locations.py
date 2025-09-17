@@ -34,11 +34,8 @@ async def list_locations(
             username=username,
             password=password
         )
-        # Handle direct array or nested response
-        if isinstance(response, list):
-            locations = response
-        else:
-            locations = response.get("locations", response.get("data", [])) if isinstance(response, dict) else []
+        # API returns data in 'result' key
+        locations = response.get("result", [])
 
         formatted_locations = []
         for loc in locations:
@@ -92,7 +89,8 @@ async def get_location_info(
             username=username,
             password=password
         )
-        location = response.get("location", response.get("data", response))
+        # Single location response is in 'result' key
+        location = response.get("result", response)
 
         return format_success(
             f"Location details for {location.get('name', location_id)}",

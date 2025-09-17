@@ -275,7 +275,8 @@ async def download_backup(
                 payload
             )
 
-            download_info = response.get("download", response.get("data", response))
+            # Download info is in 'result' key
+        download_info = response.get("result", response)
 
             return format_success(
                 "Download link generated",
@@ -803,7 +804,8 @@ async def download_cloud_backup(
             username=username,
             password=password
         )
-        download_info = response.get("download", response.get("data", response))
+        # Download info is in 'result' key
+        download_info = response.get("result", response)
 
         return format_success(
             "Cloud backup download link generated",

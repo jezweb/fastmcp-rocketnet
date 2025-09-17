@@ -43,7 +43,8 @@ async def list_plugins(
             username=username,
             password=password
         )
-        plugins = response.get("plugins", response.get("data", []))
+        # API returns data in 'result' key
+        plugins = response.get("result", [])
 
         formatted_plugins = []
         for plugin in plugins:
@@ -105,7 +106,8 @@ async def install_plugin(
             username=username,
             password=password
         )
-        plugin = response.get("plugin", response.get("data", response))
+        # Single plugin response is in 'result' key
+        plugin = response.get("result", response)
 
         return format_success(
             f"Plugin {plugin_slug} installed successfully",
@@ -159,7 +161,8 @@ async def update_plugins(
             username=username,
             password=password
         )
-        result = response.get("result", response.get("data", response))
+        # Response is in 'result' key
+        result = response.get("result", response)
 
         return format_success(
             "Plugins updated successfully",
@@ -340,7 +343,8 @@ async def search_plugins(
             username=username,
             password=password
         )
-        plugins = response.get("plugins", response.get("data", []))
+        # API returns data in 'result' key
+        plugins = response.get("result", [])
 
         formatted_results = []
         for plugin in plugins[:limit]:
@@ -391,7 +395,8 @@ async def list_themes(
             username=username,
             password=password
         )
-        themes = response.get("themes", response.get("data", []))
+        # API returns themes in 'result' key
+        themes = response.get("result", [])
 
         formatted_themes = []
         for theme in themes:
@@ -455,7 +460,8 @@ async def install_theme(
             username=username,
             password=password
         )
-        theme = response.get("theme", response.get("data", response))
+        # Single theme response is in 'result' key
+        theme = response.get("result", response)
 
         return format_success(
             f"Theme {theme_slug} installed successfully",
@@ -591,7 +597,8 @@ async def search_themes(
             username=username,
             password=password
         )
-        themes = response.get("themes", response.get("data", []))
+        # API returns themes in 'result' key
+        themes = response.get("result", [])
 
         formatted_results = []
         for theme in themes[:limit]:
@@ -658,7 +665,8 @@ async def update_themes(
             username=username,
             password=password
         )
-        result = response.get("result", response.get("data", response))
+        # Response is in 'result' key
+        result = response.get("result", response)
 
         return format_success(
             "Themes updated successfully",
@@ -698,7 +706,8 @@ async def get_wordpress_status(
             username=username,
             password=password
         )
-        status = response.get("status", response.get("data", response))
+        # Status response is in 'result' key
+        status = response.get("result", response)
 
         return format_success(
             "WordPress status retrieved",
@@ -747,7 +756,8 @@ async def get_wordpress_login_url(
             username=username,
             password=password
         )
-        login_info = response.get("login", response.get("data", response))
+        # Login info is in 'result' key
+        login_info = response.get("result", response)
 
         return format_success(
             "WordPress SSO login URL generated",
@@ -798,7 +808,8 @@ async def run_wpcli_command(
             username=username,
             password=password
         )
-        result = response.get("result", response.get("data", response))
+        # Response is in 'result' key
+        result = response.get("result", response)
 
         return format_success(
             f"WP-CLI command executed: {command}",
