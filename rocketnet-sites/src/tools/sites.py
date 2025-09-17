@@ -179,7 +179,9 @@ async def update_site(
     php_version: Optional[str] = None,
     wordpress_autoupdate: Optional[bool] = None,
     plugin_autoupdate: Optional[bool] = None,
-    theme_autoupdate: Optional[bool] = None
+    theme_autoupdate: Optional[bool] = None,
+    username: Optional[str] = None,
+    password: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Update site configuration.
@@ -191,37 +193,43 @@ async def update_site(
         wordpress_autoupdate: Enable/disable WordPress auto-updates
         plugin_autoupdate: Enable/disable plugin auto-updates
         theme_autoupdate: Enable/disable theme auto-updates
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Updated site information
     """
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            payload = {}
+        payload = {}
 
-            if name:
-                payload["name"] = name
-            if php_version:
-                payload["php_version"] = php_version
-            if wordpress_autoupdate is not None:
-                payload["wordpress_autoupdate"] = wordpress_autoupdate
-            if plugin_autoupdate is not None:
-                payload["plugin_autoupdate"] = plugin_autoupdate
-            if theme_autoupdate is not None:
-                payload["theme_autoupdate"] = theme_autoupdate
+        if name:
+            payload["name"] = name
+        if php_version:
+            payload["php_version"] = php_version
+        if wordpress_autoupdate is not None:
+            payload["wordpress_autoupdate"] = wordpress_autoupdate
+        if plugin_autoupdate is not None:
+            payload["plugin_autoupdate"] = plugin_autoupdate
+        if theme_autoupdate is not None:
+            payload["theme_autoupdate"] = theme_autoupdate
 
-            if not payload:
-                return format_warning("No updates provided")
+        if not payload:
+            return format_warning("No updates provided")
 
-            response = await client.patch(f"/sites/{site_id}", payload)
-            # Single site response is in 'result' key
+        response = await make_api_request(
+            method="PATCH",
+            endpoint=f"/sites/{site_id}",
+            json_data=payload,
+            username=username,
+            password=password
+        )
+        # Single site response is in 'result' key
         site = response.get("result", response)
 
-            return format_success(
-                f"Site {site_id} updated successfully",
-                format_site_info(site)
-            )
+        return format_success(
+            f"Site {site_id} updated successfully",
+            format_site_info(site)
+        )
 
     except Exception as e:
         return format_error(f"Failed to update site {site_id}: {str(e)}")
@@ -229,7 +237,9 @@ async def update_site(
 
 async def delete_site(
     site_id: str,
-    confirm: bool = False
+    confirm: bool = False,
+    username: Optional[str] = None,
+    password: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Delete a site from Rocket.net. This action is irreversible!
@@ -237,6 +247,8 @@ async def delete_site(
     Args:
         site_id: The ID of the site to delete
         confirm: Must be True to confirm deletion
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Confirmation of deletion
@@ -248,59 +260,77 @@ async def delete_site(
                 {"message": "Set confirm=True to delete the site. This action cannot be undone!"}
             )
 
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            # Get site info first for confirmation message
-            site_response = await client.get(f"/sites/{site_id}")
-            site = site_response.get("site", site_response.get("data", {}))
-            site_name = site.get("name", site_id)
+        # Get site info first for confirmation message
+        site_response = await make_api_request(
+            method="GET",
+            endpoint=f"/sites/{site_id}",
+            username=username,
+            password=password
+        )
+        site = site_response.get("result", {})
+        site_name = site.get("name", site_id)
 
-            # Delete the site
-            await client.delete(f"/sites/{site_id}")
+        # Delete the site
+        await make_api_request(
+            method="DELETE",
+            endpoint=f"/sites/{site_id}",
+            username=username,
+            password=password
+        )
 
-            return format_success(
-                f"Site '{site_name}' (ID: {site_id}) has been deleted",
-                {"deleted_site_id": site_id, "deleted_site_name": site_name}
-            )
+        return format_success(
+            f"Site '{site_name}' (ID: {site_id}) has been deleted",
+            {"deleted_site_id": site_id, "deleted_site_name": site_name}
+        )
 
     except Exception as e:
         return format_error(f"Failed to delete site {site_id}: {str(e)}")
 
 
-async def get_site_status(site_id: str) -> Dict[str, Any]:
+async def get_site_status(
+    site_id: str,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
     """
     Get the current status and health of a site.
 
     Args:
         site_id: The ID of the site to check
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Site status including health checks and metrics
     """
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            response = await client.get(f"/sites/{site_id}/status")
+        response = await make_api_request(
+            method="GET",
+            endpoint=f"/sites/{site_id}/status",
+            username=username,
+            password=password
+        )
 
-            status_data = response.get("status", response.get("data", response))
+        # Status data is in 'result' key
+        status_data = response.get("result", response)
 
-            return format_success(
-                f"Site status retrieved",
-                {
-                    "site_id": site_id,
-                    "status": status_data.get("status", "unknown"),
-                    "health": status_data.get("health", "unknown"),
-                    "uptime": status_data.get("uptime"),
-                    "response_time": status_data.get("response_time"),
-                    "ssl_status": status_data.get("ssl_status"),
-                    "last_backup": status_data.get("last_backup"),
-                    "disk_usage": status_data.get("disk_usage"),
-                    "bandwidth_usage": status_data.get("bandwidth_usage"),
-                    "php_version": status_data.get("php_version"),
-                    "wordpress_version": status_data.get("wordpress_version"),
-                    "issues": status_data.get("issues", [])
-                }
-            )
+        return format_success(
+            f"Site status retrieved",
+            {
+                "site_id": site_id,
+                "status": status_data.get("status", "unknown"),
+                "health": status_data.get("health", "unknown"),
+                "uptime": status_data.get("uptime"),
+                "response_time": status_data.get("response_time"),
+                "ssl_status": status_data.get("ssl_status"),
+                "last_backup": status_data.get("last_backup"),
+                "disk_usage": status_data.get("disk_usage"),
+                "bandwidth_usage": status_data.get("bandwidth_usage"),
+                "php_version": status_data.get("php_version"),
+                "wordpress_version": status_data.get("wordpress_version"),
+                "issues": status_data.get("issues", [])
+            }
+        )
 
     except Exception as e:
         return format_error(f"Failed to get site status for {site_id}: {str(e)}")
@@ -311,7 +341,9 @@ async def clone_site(
     new_name: str,
     new_domain: str,
     location: Optional[str] = None,
-    plan: Optional[str] = None
+    plan: Optional[str] = None,
+    username: Optional[str] = None,
+    password: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Create a copy of an existing site.
@@ -322,62 +354,78 @@ async def clone_site(
         new_domain: Domain for the new site
         location: Data center location for the new site (uses source site location if not specified)
         plan: Hosting plan for the new site (uses source site plan if not specified)
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Information about the cloned site
     """
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            payload = {
-                "source_site_id": source_site_id,
-                "name": new_name,
-                "domain": new_domain
-            }
+        payload = {
+            "source_site_id": source_site_id,
+            "name": new_name,
+            "domain": new_domain
+        }
 
-            if location:
-                payload["location"] = location
-            if plan:
-                payload["plan"] = plan
+        if location:
+            payload["location"] = location
+        if plan:
+            payload["plan"] = plan
 
-            response = await client.post("/sites/clone", payload)
-            # Single site response is in 'result' key
+        response = await make_api_request(
+            method="POST",
+            endpoint="/sites/clone",
+            json_data=payload,
+            username=username,
+            password=password
+        )
+        # Single site response is in 'result' key
         site = response.get("result", response)
 
-            return format_success(
-                f"Site cloned successfully as '{new_name}'",
-                {
-                    "site": format_site_info(site),
-                    "source_site_id": source_site_id,
-                    "clone_status": "Cloning in progress. This may take several minutes.",
-                    "temporary_url": site.get("temporary_url")
-                }
-            )
+        return format_success(
+            f"Site cloned successfully as '{new_name}'",
+            {
+                "site": format_site_info(site),
+                "source_site_id": source_site_id,
+                "clone_status": "Cloning in progress. This may take several minutes.",
+                "temporary_url": site.get("temporary_url")
+            }
+        )
 
     except Exception as e:
         return format_error(f"Failed to clone site {source_site_id}: {str(e)}")
 
 
-async def get_site_settings(site_id: str) -> Dict[str, Any]:
+async def get_site_settings(
+    site_id: str,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
     """
     Get all settings for a site.
 
     Args:
         site_id: The ID of the site
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Complete site settings
     """
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            response = await client.get(f"/sites/{site_id}/settings")
-            settings = response.get("settings", response.get("data", response))
+        response = await make_api_request(
+            method="GET",
+            endpoint=f"/sites/{site_id}/settings",
+            username=username,
+            password=password
+        )
+        # Settings are in 'result' key
+        settings = response.get("result", response)
 
-            return format_success(
-                f"Site settings retrieved",
-                settings
-            )
+        return format_success(
+            f"Site settings retrieved",
+            settings
+        )
 
     except Exception as e:
         return format_error(f"Failed to get site settings for {site_id}: {str(e)}")
@@ -385,7 +433,9 @@ async def get_site_settings(site_id: str) -> Dict[str, Any]:
 
 async def update_site_settings(
     site_id: str,
-    settings: Dict[str, Any]
+    settings: Dict[str, Any],
+    username: Optional[str] = None,
+    password: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Update site settings.
@@ -393,20 +443,27 @@ async def update_site_settings(
     Args:
         site_id: The ID of the site
         settings: Dictionary of settings to update
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Updated settings
     """
     try:
-        config = Config.from_env()
-        async with RocketnetClient(config) as client:
-            response = await client.patch(f"/sites/{site_id}/settings", settings)
-            updated_settings = response.get("settings", response.get("data", response))
+        response = await make_api_request(
+            method="PATCH",
+            endpoint=f"/sites/{site_id}/settings",
+            json_data=settings,
+            username=username,
+            password=password
+        )
+        # Updated settings are in 'result' key
+        updated_settings = response.get("result", response)
 
-            return format_success(
-                f"Site settings updated",
-                updated_settings
-            )
+        return format_success(
+            f"Site settings updated",
+            updated_settings
+        )
 
     except Exception as e:
         return format_error(f"Failed to update site settings for {site_id}: {str(e)}")
