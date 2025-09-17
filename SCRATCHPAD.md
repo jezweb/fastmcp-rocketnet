@@ -20,11 +20,14 @@ Base Directory: `/home/jez/Documents/fastmcp-rocketnet`
 - [ ] Response formatting
 
 ### 2. rocketnet-sites (Core Site Management)
-- [ ] List sites
-- [ ] Get site details
-- [ ] Create/Update/Delete sites
-- [ ] Site status monitoring
-- [ ] Site cloning
+- [x] List sites
+- [x] Get site details
+- [x] Create/Update/Delete sites
+- [x] Site status monitoring
+- [x] Site cloning
+- [x] Location management
+- [x] Plan management
+- [x] Dashboard resources
 
 ### 3. rocketnet-domains (Domain Management)
 - [ ] Domain CRUD operations
