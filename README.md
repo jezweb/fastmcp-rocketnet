@@ -4,9 +4,9 @@ A comprehensive collection of Model Context Protocol (MCP) servers for interacti
 
 ## Overview
 
-This repository contains a comprehensive suite of 7 specialized MCP servers that provide programmatic access to Rocket.net's hosting platform capabilities. Each server focuses on a specific domain of functionality, allowing for modular deployment and usage.
+This repository contains a comprehensive suite of 8 specialized MCP servers that provide programmatic access to Rocket.net's hosting platform capabilities. Each server focuses on a specific domain of functionality, allowing for modular deployment and usage.
 
-**Total Coverage**: 75+ tools across all servers, covering site management, domains, backups, performance, WordPress, analytics, and billing.
+**Total Coverage**: 95+ tools across all servers, covering site management, domains, backups, performance, WordPress, analytics, billing, and site access control.
 
 ## Architecture
 
@@ -14,11 +14,12 @@ The project uses a modular multi-server approach where each server handles speci
 
 - **rocketnet-sites** - Core site management and infrastructure
 - **rocketnet-domains** - Domain and DNS management
-- **rocketnet-backups** - Backup and recovery operations
+- **rocketnet-backups** - Backup and recovery operations (including cloud backups)
 - **rocketnet-performance** - CDN cache and performance monitoring
 - **rocketnet-wordpress** - WordPress plugins, themes, and WP-CLI
 - **rocketnet-analytics** - Comprehensive reporting and security monitoring
 - **rocketnet-billing** - Account management and billing operations
+- **rocketnet-access** - SSH keys, FTP, files, staging, and access control
 
 Each server is completely independent and self-contained for FastMCP Cloud compatibility.
 
@@ -114,7 +115,7 @@ Handle domains, DNS records, and SSL certificates.
 - `update_domain_edge_settings` - Configure CDN/edge settings
 
 ### 3. Backup & Recovery (`rocketnet-backups`)
-Comprehensive backup management and disaster recovery.
+Comprehensive backup management and disaster recovery, including cloud backups.
 
 **Key Tools:**
 - `create_backup` - Create manual backups
@@ -122,6 +123,8 @@ Comprehensive backup management and disaster recovery.
 - `restore_backup` - Restore from backups
 - `schedule_backup` - Configure automatic backups
 - `download_backup` - Get backup download links
+- `create_cloud_backup` - Create encrypted cloud backup
+- `restore_cloud_backup` - Restore from cloud backup
 
 ### 4. Performance & CDN (`rocketnet-performance`)
 CDN cache management, bandwidth monitoring, and visitor analytics.
@@ -166,6 +169,18 @@ Invoice management, payment methods, and account administration.
 - `list_account_users` - Manage user access
 - `get_available_products` - View plans and add-ons
 
+### 8. Site Access Management (`rocketnet-access`)
+SSH keys, FTP accounts, file management, staging sites, and access control.
+
+**Key Tools:**
+- `list_ssh_keys` - Manage SSH keys for site access
+- `create_ftp_account` - Create FTP accounts
+- `list_files` - Browse and manage site files
+- `create_staging_site` - Create staging environments
+- `publish_staging` - Push staging to production
+- `get_phpmyadmin_login` - Get phpMyAdmin SSO URL
+- `enable_password_protection` - Protect sites with passwords
+
 ## Deployment
 
 ### Local Development
@@ -199,11 +214,12 @@ Each server can be deployed independently, allowing you to use only the function
 fastmcp-rocketnet/
 ├── rocketnet-sites/        # Sites management server
 ├── rocketnet-domains/      # Domains server
-├── rocketnet-backups/      # Backups server
+├── rocketnet-backups/      # Backups server (with cloud support)
 ├── rocketnet-performance/  # Performance server
 ├── rocketnet-wordpress/    # WordPress server
 ├── rocketnet-analytics/    # Analytics server
 ├── rocketnet-billing/      # Billing server
+├── rocketnet-access/       # Access management server
 ├── README.md
 ├── SCRATCHPAD.md          # Development notes
 └── DEPLOYMENT.md          # Deployment guide

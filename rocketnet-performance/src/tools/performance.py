@@ -92,7 +92,7 @@ async def purge_all_cache(
 
         response = await make_api_request(
             method="POST",
-            endpoint=f"/sites/{site_id}/cache/purge/everything",
+            endpoint=f"/sites/{site_id}/cache/purge_everything",
             username=username,
             password=password
         )

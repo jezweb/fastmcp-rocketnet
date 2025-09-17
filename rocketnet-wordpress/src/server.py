@@ -92,7 +92,7 @@ async def wordpress_status_resource(site_id: str) -> str:
         import json
 
         # Get WordPress status
-        status_response = await make_api_request("GET", f"/sites/{site_id}/wp-status")
+        status_response = await make_api_request("GET", f"/sites/{site_id}/wp/status")
 
         # Get plugin info
         plugins_response = await make_api_request("GET", f"/sites/{site_id}/plugins")

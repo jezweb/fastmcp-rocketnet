@@ -559,3 +559,328 @@ async def delete_backup_schedule(
 
     except Exception as e:
         return format_error(f"Failed to delete backup schedule for site {site_id}: {str(e)}")
+
+
+# Cloud Backup Functions
+async def list_cloud_backups(
+    site_id: str,
+    limit: int = 50,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    List all cloud backups for a site.
+
+    Args:
+        site_id: The ID of the site
+        limit: Maximum number of backups to return
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
+
+    Returns:
+        List of cloud backups with details
+    """
+    try:
+        params = {"limit": limit}
+
+        response = await make_api_request(
+            method="GET",
+            endpoint=f"/sites/{site_id}/cloud-backups",
+            params=params,
+            username=username,
+            password=password
+        )
+        backups = response.get("cloud_backups", response.get("data", []))
+
+        formatted_backups = []
+        for backup in backups:
+            formatted_backups.append({
+                "id": backup.get("id"),
+                "name": backup.get("name"),
+                "size": format_size(backup.get("size", 0)),
+                "created_at": format_datetime(backup.get("created_at")),
+                "provider": backup.get("provider", "Rocket.net Cloud"),
+                "region": backup.get("region"),
+                "encrypted": backup.get("encrypted", True),
+                "status": backup.get("status")
+            })
+
+        return format_success(
+            f"Found {len(formatted_backups)} cloud backups for site {site_id}",
+            {
+                "cloud_backups": formatted_backups,
+                "count": len(formatted_backups),
+                "site_id": site_id,
+                "total_size": format_size(sum(b.get("size", 0) for b in backups))
+            }
+        )
+
+    except Exception as e:
+        return format_error(f"Failed to list cloud backups: {str(e)}")
+
+
+async def create_cloud_backup(
+    site_id: str,
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    encrypt: bool = True,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Create a new cloud backup for a site.
+
+    Args:
+        site_id: The ID of the site
+        name: Optional name for the backup
+        description: Optional description
+        encrypt: Whether to encrypt the backup
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
+
+    Returns:
+        Information about the created cloud backup
+    """
+    try:
+        payload = {
+            "encrypt": encrypt
+        }
+        if name:
+            payload["name"] = name
+        if description:
+            payload["description"] = description
+
+        response = await make_api_request(
+            method="POST",
+            endpoint=f"/sites/{site_id}/cloud-backups",
+            json_data=payload,
+            username=username,
+            password=password
+        )
+        backup = response.get("cloud_backup", response.get("data", response))
+
+        return format_success(
+            f"Cloud backup initiated for site {site_id}",
+            {
+                "backup_id": backup.get("id"),
+                "name": backup.get("name", name),
+                "status": backup.get("status", "uploading"),
+                "encrypted": encrypt,
+                "provider": backup.get("provider", "Rocket.net Cloud"),
+                "estimated_time": backup.get("estimated_time", "5-15 minutes"),
+                "message": "Cloud backup is being created and uploaded"
+            }
+        )
+
+    except Exception as e:
+        return format_error(f"Failed to create cloud backup: {str(e)}")
+
+
+async def get_cloud_backup(
+    site_id: str,
+    backup_id: str,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Get details of a specific cloud backup.
+
+    Args:
+        site_id: The ID of the site
+        backup_id: The ID of the cloud backup
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
+
+    Returns:
+        Detailed cloud backup information
+    """
+    try:
+        response = await make_api_request(
+            method="GET",
+            endpoint=f"/sites/{site_id}/cloud-backups/{backup_id}",
+            username=username,
+            password=password
+        )
+        backup = response.get("cloud_backup", response.get("data", response))
+
+        return format_success(
+            "Cloud backup details retrieved",
+            {
+                "id": backup.get("id"),
+                "name": backup.get("name"),
+                "site_id": site_id,
+                "size": format_size(backup.get("size", 0)),
+                "created_at": format_datetime(backup.get("created_at")),
+                "status": backup.get("status"),
+                "provider": backup.get("provider"),
+                "region": backup.get("region"),
+                "encrypted": backup.get("encrypted"),
+                "checksum": backup.get("checksum"),
+                "includes": backup.get("includes", {}),
+                "download_available": backup.get("download_available", True),
+                "restore_available": backup.get("restore_available", True)
+            }
+        )
+
+    except Exception as e:
+        return format_error(f"Failed to get cloud backup {backup_id}: {str(e)}")
+
+
+async def delete_cloud_backup(
+    site_id: str,
+    backup_id: str,
+    confirm: bool = False,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Delete a cloud backup. This action is irreversible!
+
+    Args:
+        site_id: The ID of the site
+        backup_id: The ID of the cloud backup to delete
+        confirm: Must be True to confirm deletion
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
+
+    Returns:
+        Confirmation of deletion
+    """
+    try:
+        if not confirm:
+            return format_warning(
+                "Cloud backup deletion requires confirmation",
+                {"message": "Set confirm=True to delete the cloud backup. This action cannot be undone!"}
+            )
+
+        await make_api_request(
+            method="DELETE",
+            endpoint=f"/sites/{site_id}/cloud-backups/{backup_id}",
+            username=username,
+            password=password
+        )
+
+        return format_success(
+            f"Cloud backup {backup_id} deleted successfully",
+            {
+                "site_id": site_id,
+                "deleted_backup_id": backup_id,
+                "message": "Cloud backup has been permanently removed"
+            }
+        )
+
+    except Exception as e:
+        return format_error(f"Failed to delete cloud backup {backup_id}: {str(e)}")
+
+
+async def download_cloud_backup(
+    site_id: str,
+    backup_id: str,
+    expires_in: int = 3600,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Get a temporary download link for a cloud backup.
+
+    Args:
+        site_id: The ID of the site
+        backup_id: The ID of the cloud backup
+        expires_in: Link expiration time in seconds (default: 1 hour)
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
+
+    Returns:
+        Download URL for the cloud backup
+    """
+    try:
+        params = {"expires_in": expires_in}
+
+        response = await make_api_request(
+            method="GET",
+            endpoint=f"/sites/{site_id}/cloud-backups/{backup_id}/download",
+            params=params,
+            username=username,
+            password=password
+        )
+        download_info = response.get("download", response.get("data", response))
+
+        return format_success(
+            "Cloud backup download link generated",
+            {
+                "backup_id": backup_id,
+                "download_url": download_info.get("url"),
+                "expires_at": format_datetime(download_info.get("expires_at")),
+                "size": format_size(download_info.get("size", 0)),
+                "filename": download_info.get("filename"),
+                "encrypted": download_info.get("encrypted", False)
+            }
+        )
+
+    except Exception as e:
+        return format_error(f"Failed to get download link for cloud backup {backup_id}: {str(e)}")
+
+
+async def restore_cloud_backup(
+    site_id: str,
+    backup_id: str,
+    target_site_id: Optional[str] = None,
+    confirm: bool = False,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Restore a site from a cloud backup or create a new site from backup.
+
+    Args:
+        site_id: The ID of the site that owns the backup
+        backup_id: The ID of the cloud backup to restore
+        target_site_id: Optional different site to restore to (creates new if not specified)
+        confirm: Must be True to confirm restoration
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
+
+    Returns:
+        Information about the restoration process
+    """
+    try:
+        if not confirm:
+            return format_warning(
+                "Cloud backup restore requires confirmation",
+                {
+                    "message": "Set confirm=True to restore. This will overwrite the target site!",
+                    "source_site_id": site_id,
+                    "backup_id": backup_id,
+                    "target_site_id": target_site_id or site_id
+                }
+            )
+
+        payload = {}
+        if target_site_id:
+            payload["target_site_id"] = target_site_id
+
+        response = await make_api_request(
+            method="POST",
+            endpoint=f"/sites/{site_id}/cloud-backups/{backup_id}/restore",
+            json_data=payload,
+            username=username,
+            password=password
+        )
+        restore = response.get("restore", response.get("data", response))
+
+        return format_success(
+            f"Cloud backup restore initiated",
+            {
+                "restore_id": restore.get("id"),
+                "source_backup_id": backup_id,
+                "target_site_id": target_site_id or site_id,
+                "status": restore.get("status", "restoring"),
+                "started_at": format_datetime(restore.get("started_at")),
+                "estimated_completion": format_datetime(restore.get("estimated_completion")),
+                "new_site_created": restore.get("new_site_created", False),
+                "message": "Site is being restored from cloud backup"
+            }
+        )
+
+    except Exception as e:
+        return format_error(f"Failed to restore cloud backup {backup_id}: {str(e)}")

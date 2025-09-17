@@ -577,7 +577,7 @@ async def get_wordpress_status(
     try:
         response = await make_api_request(
             method="GET",
-            endpoint=f"/sites/{site_id}/wp-status",
+            endpoint=f"/sites/{site_id}/wp/status",
             username=username,
             password=password
         )
@@ -626,7 +626,7 @@ async def get_wordpress_login_url(
     try:
         response = await make_api_request(
             method="GET",
-            endpoint=f"/sites/{site_id}/wp-login",
+            endpoint=f"/sites/{site_id}/wp_login",
             username=username,
             password=password
         )

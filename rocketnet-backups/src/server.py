@@ -24,6 +24,13 @@ from tools.backups import (
     get_backup_schedule,
     update_backup_schedule,
     delete_backup_schedule,
+    # Cloud backups
+    list_cloud_backups,
+    create_cloud_backup,
+    get_cloud_backup,
+    delete_cloud_backup,
+    download_cloud_backup,
+    restore_cloud_backup,
 )
 
 # Initialize FastMCP server - MUST be at module level for FastMCP Cloud
@@ -44,6 +51,14 @@ mcp = FastMCP(
     - get_backup_schedule: Get current backup schedule
     - update_backup_schedule: Modify backup schedule
     - delete_backup_schedule: Remove automatic backups
+
+    Cloud Backup Tools:
+    - list_cloud_backups: List cloud backups
+    - create_cloud_backup: Create encrypted cloud backup
+    - get_cloud_backup: Get cloud backup details
+    - delete_cloud_backup: Delete cloud backup
+    - download_cloud_backup: Get download link
+    - restore_cloud_backup: Restore from cloud
 
     Backup Types:
     - full: Complete site backup including files and database
@@ -68,6 +83,14 @@ mcp.tool(schedule_backup)
 mcp.tool(get_backup_schedule)
 mcp.tool(update_backup_schedule)
 mcp.tool(delete_backup_schedule)
+
+# Cloud backup tools
+mcp.tool(list_cloud_backups)
+mcp.tool(create_cloud_backup)
+mcp.tool(get_cloud_backup)
+mcp.tool(delete_cloud_backup)
+mcp.tool(download_cloud_backup)
+mcp.tool(restore_cloud_backup)
 
 # Register resource for backup status
 @mcp.resource("backups://{site_id}/recent")
