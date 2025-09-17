@@ -13,9 +13,16 @@ from auth import make_api_request
 from utils import format_success, format_error
 
 
-async def list_locations() -> Dict[str, Any]:
+async def list_locations(
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
     """
     List all available data center locations for Rocket.net sites.
+
+    Args:
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         List of available locations with their details
@@ -23,7 +30,9 @@ async def list_locations() -> Dict[str, Any]:
     try:
         response = await make_api_request(
             method="GET",
-            endpoint="/sites/locations"
+            endpoint="/sites/locations",
+            username=username,
+            password=password
         )
         locations = response.get("locations", response.get("data", []))
 
@@ -56,12 +65,18 @@ async def list_locations() -> Dict[str, Any]:
         return format_error(f"Failed to list locations: {str(e)}")
 
 
-async def get_location_info(location_id: str) -> Dict[str, Any]:
+async def get_location_info(
+    location_id: str,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
     """
     Get detailed information about a specific data center location.
 
     Args:
         location_id: The ID of the location
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Detailed location information
@@ -69,7 +84,9 @@ async def get_location_info(location_id: str) -> Dict[str, Any]:
     try:
         response = await make_api_request(
             method="GET",
-            endpoint=f"/sites/locations/{location_id}"
+            endpoint=f"/sites/locations/{location_id}",
+            username=username,
+            password=password
         )
         location = response.get("location", response.get("data", response))
 

@@ -18,13 +18,17 @@ from utils import (
 
 
 async def list_plans(
-    plan_type: Optional[str] = None
+    plan_type: Optional[str] = None,
+    username: Optional[str] = None,
+    password: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     List all available hosting plans.
 
     Args:
         plan_type: Filter by plan type (wordpress, agency, enterprise)
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         List of available plans with their features
@@ -37,7 +41,9 @@ async def list_plans(
         response = await make_api_request(
             method="GET",
             endpoint="/billing/products",
-            params=params
+            params=params,
+            username=username,
+            password=password
         )
         plans = response.get("plans", response.get("data", []))
 
@@ -77,12 +83,18 @@ async def list_plans(
         return format_error(f"Failed to list plans: {str(e)}")
 
 
-async def get_plan_details(plan_id: str) -> Dict[str, Any]:
+async def get_plan_details(
+    plan_id: str,
+    username: Optional[str] = None,
+    password: Optional[str] = None
+) -> Dict[str, Any]:
     """
     Get detailed information about a specific hosting plan.
 
     Args:
         plan_id: The ID of the plan (starter, pro, business, agency, etc.)
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Detailed plan information including all features
@@ -90,7 +102,9 @@ async def get_plan_details(plan_id: str) -> Dict[str, Any]:
     try:
         response = await make_api_request(
             method="GET",
-            endpoint=f"/billing/products/{plan_id}"
+            endpoint=f"/billing/products/{plan_id}",
+            username=username,
+            password=password
         )
         plan = response.get("plan", response.get("data", response))
 
@@ -158,7 +172,9 @@ async def get_plan_details(plan_id: str) -> Dict[str, Any]:
 async def change_site_plan(
     site_id: str,
     new_plan_id: str,
-    confirm: bool = False
+    confirm: bool = False,
+    username: Optional[str] = None,
+    password: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Change the hosting plan for a site.
@@ -167,6 +183,8 @@ async def change_site_plan(
         site_id: The ID of the site to update
         new_plan_id: The ID of the new plan
         confirm: Must be True to confirm the plan change
+        username: Rocket.net username (optional, uses env var if not provided)
+        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Information about the plan change
@@ -185,7 +203,9 @@ async def change_site_plan(
         # Get current site info
         site_response = await make_api_request(
             method="GET",
-            endpoint=f"/sites/{site_id}"
+            endpoint=f"/sites/{site_id}",
+            username=username,
+            password=password
         )
         site = site_response.get("site", site_response.get("data", {}))
         current_plan = site.get("plan")
@@ -195,7 +215,9 @@ async def change_site_plan(
         response = await make_api_request(
             method="PATCH",
             endpoint=f"/sites/{site_id}",
-            json_data=payload
+            json_data=payload,
+            username=username,
+            password=password
         )
 
         result = response.get("result", response.get("data", response))
