@@ -303,7 +303,7 @@ Add servers to your Claude Desktop configuration:
       "command": "fastmcp",
       "args": ["dev", "/path/to/rocketnet-sites/src/server.py"],
       "env": {
-        "ROCKETNET_EMAIL": "your-email@example.com",
+        "ROCKETNET_USERNAME": "your-email@example.com",
         "ROCKETNET_PASSWORD": "your-password"
       }
     }

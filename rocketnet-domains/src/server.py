@@ -52,7 +52,7 @@ mcp = FastMCP(
     - domain://{site_id}/main - Main domain information
 
     All operations require proper authentication via environment variables:
-    ROCKETNET_EMAIL and ROCKETNET_PASSWORD
+    ROCKETNET_USERNAME and ROCKETNET_PASSWORD
     """
 )
 

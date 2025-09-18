@@ -82,7 +82,7 @@ mcp = FastMCP(
     - files://{site_id}/list - Root directory listing
 
     All operations require proper authentication via environment variables:
-    ROCKETNET_EMAIL and ROCKETNET_PASSWORD
+    ROCKETNET_USERNAME and ROCKETNET_PASSWORD
     """
 )
 

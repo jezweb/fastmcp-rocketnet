@@ -67,7 +67,7 @@ mcp = FastMCP(
     - incremental: Incremental backup since last full backup
 
     All operations require proper authentication via environment variables:
-    ROCKETNET_EMAIL and ROCKETNET_PASSWORD
+    ROCKETNET_USERNAME and ROCKETNET_PASSWORD
     """
 )
 

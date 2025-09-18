@@ -51,7 +51,7 @@ mcp = FastMCP(
     - cache://{site_id}/status - Current cache status
 
     All operations require proper authentication via environment variables:
-    ROCKETNET_EMAIL and ROCKETNET_PASSWORD
+    ROCKETNET_USERNAME and ROCKETNET_PASSWORD
     """
 )
 

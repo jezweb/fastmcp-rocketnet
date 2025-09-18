@@ -52,7 +52,7 @@ mcp = FastMCP(
     - security://{site_id}/overview - Security events overview
 
     All operations require proper authentication via environment variables:
-    ROCKETNET_EMAIL and ROCKETNET_PASSWORD
+    ROCKETNET_USERNAME and ROCKETNET_PASSWORD
     """
 )
 

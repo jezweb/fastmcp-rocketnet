@@ -59,7 +59,7 @@ mcp = FastMCP(
     - account://users/all - All account users
 
     All operations require proper authentication via environment variables:
-    ROCKETNET_EMAIL and ROCKETNET_PASSWORD
+    ROCKETNET_USERNAME and ROCKETNET_PASSWORD
     """
 )
 

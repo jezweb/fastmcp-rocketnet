@@ -62,7 +62,7 @@ mcp = FastMCP(
     - sites://all/status - Status of all sites
 
     All operations require proper authentication via environment variables:
-    ROCKETNET_EMAIL and ROCKETNET_PASSWORD
+    ROCKETNET_USERNAME and ROCKETNET_PASSWORD
     """
 )
 
