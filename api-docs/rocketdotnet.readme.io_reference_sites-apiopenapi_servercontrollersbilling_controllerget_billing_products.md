@@ -1,0 +1,78 @@
+---
+url: "https://rocketdotnet.readme.io/reference/sites-apiopenapi_servercontrollersbilling_controllerget_billing_products"
+title: "List Available Products"
+---
+
+| time | status | user agent |  |
+| :-- | :-- | :-- | :-- |
+| Make a request to see history. |
+
+#### URL Expired
+
+The URL for this request expired after 30 days.
+
+coupon
+
+string
+
+Apply a coupon to the product results
+
+product\_id
+
+integer
+
+Filter to a specific product id
+
+type
+
+string
+
+enum
+
+Filter by product type
+
+ManagedAgencyEnterprise
+
+Allowed:
+
+`Managed``Agency``Enterprise`
+
+# `` 200      OK
+
+# `` 400      Bad Request
+
+# `` 401      Authentication failed
+
+# `` 403      Not authorized to access endpoint
+
+# `` 405      Invalid input
+
+# `` 500      Internal error
+
+Updated 4 months ago
+
+* * *
+
+ShellNodeRubyPHPPython
+
+```
+
+xxxxxxxxxx
+
+1curl --request GET \
+
+2     --url https://api.rocket.net/v1/billing/products \
+
+3     --header 'accept: application/json'
+
+```
+
+Click `Try It!` to start a request and see the response here! Or choose an example:
+
+application/json
+
+`` 200`` 400`` 401`` 403`` 405`` 500
+
+Updated 4 months ago
+
+* * *

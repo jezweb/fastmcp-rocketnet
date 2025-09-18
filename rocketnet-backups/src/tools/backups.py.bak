@@ -117,28 +117,28 @@ async def list_backups(
         # API returns data in 'result' key
         backups = response.get("result", [])
 
-        formatted_backups = []
-        for backup in backups:
-            formatted_backups.append({
-                "id": backup.get("id"),
-                "type": backup.get("type"),
-                "status": backup.get("status"),
-                "size": format_size(backup.get("size", 0)),
-                "created_at": format_datetime(backup.get("created_at")),
-                "completed_at": format_datetime(backup.get("completed_at")),
-                "description": backup.get("description"),
-                "can_restore": backup.get("can_restore", True),
-                "expires_at": format_datetime(backup.get("expires_at"))
-            })
+            formatted_backups = []
+            for backup in backups:
+                formatted_backups.append({
+                    "id": backup.get("id"),
+                    "type": backup.get("type"),
+                    "status": backup.get("status"),
+                    "size": format_size(backup.get("size", 0)),
+                    "created_at": format_datetime(backup.get("created_at")),
+                    "completed_at": format_datetime(backup.get("completed_at")),
+                    "description": backup.get("description"),
+                    "can_restore": backup.get("can_restore", True),
+                    "expires_at": format_datetime(backup.get("expires_at"))
+                })
 
-        return format_success(
-            f"Found {len(formatted_backups)} backups for site {site_id}",
-            {
-                "backups": formatted_backups,
-                "count": len(formatted_backups),
-                "site_id": site_id
-            }
-        )
+            return format_success(
+                f"Found {len(formatted_backups)} backups for site {site_id}",
+                {
+                    "backups": formatted_backups,
+                    "count": len(formatted_backups),
+                    "site_id": site_id
+                }
+            )
 
     except Exception as e:
         return format_error(f"Failed to list backups for site {site_id}: {str(e)}")
@@ -172,7 +172,7 @@ async def get_backup(
         # Single backup response is in 'result' key
         backup = response.get("result", response)
 
-        return format_success(
+            return format_success(
                 f"Backup details retrieved",
                 {
                     "id": backup.get("id"),
@@ -200,7 +200,7 @@ async def get_backup(
                     "expires_at": format_datetime(backup.get("expires_at")),
                     "download_available": backup.get("download_available", True)
                 }
-        )
+            )
 
     except Exception as e:
         return format_error(f"Failed to get backup {backup_id}: {str(e)}")
@@ -238,7 +238,7 @@ async def restore_backup(
                     "backup_id": backup_id,
                     "restore_type": restore_type
                 }
-        )
+            )
 
         payload = {
             "restore_type": restore_type
@@ -254,7 +254,7 @@ async def restore_backup(
         # Restore response is in 'result' key
         restore = response.get("result", response)
 
-        return format_success(
+            return format_success(
                 f"Restore initiated for site {site_id}",
                 {
                     "restore_id": restore.get("id"),
@@ -266,7 +266,7 @@ async def restore_backup(
                     "estimated_completion": format_datetime(restore.get("estimated_completion")),
                     "message": "Site is being restored. The site may be unavailable during this process."
                 }
-        )
+            )
 
     except Exception as e:
         return format_error(f"Failed to restore backup {backup_id}: {str(e)}")
@@ -347,7 +347,7 @@ async def delete_backup(
             return format_warning(
                 "Backup deletion requires confirmation",
                 {"message": "Set confirm=True to delete the backup. This action cannot be undone!"}
-        )
+            )
 
         await make_api_request(
             method="DELETE",
@@ -370,9 +370,7 @@ async def delete_backup(
 
 async def test_restore(
     site_id: str,
-    backup_id: str,
-    username: Optional[str] = None,
-    password: Optional[str] = None
+    backup_id: str
 ) -> Dict[str, Any]:
     """
     Test restoration process without affecting the live site.
@@ -381,32 +379,28 @@ async def test_restore(
     Args:
         site_id: The ID of the site
         backup_id: The ID of the backup to test
-        username: Rocket.net username (optional, uses env var if not provided)
-        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Information about the test restoration
     """
     try:
-        response = await make_api_request(
-            method="POST",
-            endpoint=f"/sites/{site_id}/backups/{backup_id}/test-restore",
-            username=username,
-            password=password
-        )
-        # Test restore response is in 'result' key
-        test_restore = response.get("result", response)
+        config = Config.from_env()
+        async with RocketnetClient(config) as client:
+            response = await client.post(
+                f"/sites/{site_id}/backups/{backup_id}/test-restore"
+            )
+            test_restore = response.get("test_restore", response.get("data", response))
 
-        return format_success(
-            "Test restore initiated",
-            {
-                "test_restore_id": test_restore.get("id"),
-                "staging_url": test_restore.get("staging_url"),
-                "status": test_restore.get("status", "in_progress"),
-                "expires_at": format_datetime(test_restore.get("expires_at")),
-                "message": "A staging environment is being created with the backup. You can test the restoration without affecting your live site."
-            }
-        )
+            return format_success(
+                "Test restore initiated",
+                {
+                    "test_restore_id": test_restore.get("id"),
+                    "staging_url": test_restore.get("staging_url"),
+                    "status": test_restore.get("status", "in_progress"),
+                    "expires_at": format_datetime(test_restore.get("expires_at")),
+                    "message": "A staging environment is being created with the backup. You can test the restoration without affecting your live site."
+                }
+            )
 
     except Exception as e:
         return format_error(f"Failed to test restore backup {backup_id}: {str(e)}")
@@ -417,9 +411,7 @@ async def schedule_backup(
     frequency: str,
     backup_type: str = "full",
     retention_days: int = 30,
-    time: Optional[str] = None,
-    username: Optional[str] = None,
-    password: Optional[str] = None
+    time: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Set up automatic backup schedule for a site.
@@ -430,33 +422,26 @@ async def schedule_backup(
         backup_type: Type of backup (full, database, files)
         retention_days: Number of days to retain backups
         time: Preferred backup time (HH:MM in UTC)
-        username: Rocket.net username (optional, uses env var if not provided)
-        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Information about the backup schedule
     """
     try:
-        payload = {
-            "frequency": frequency,
-            "backup_type": backup_type,
-            "retention_days": retention_days
-        }
+        config = Config.from_env()
+        async with RocketnetClient(config) as client:
+            payload = {
+                "frequency": frequency,
+                "backup_type": backup_type,
+                "retention_days": retention_days
+            }
 
-        if time:
-            payload["time"] = time
+            if time:
+                payload["time"] = time
 
-        response = await make_api_request(
-            method="POST",
-            endpoint=f"/sites/{site_id}/backup-schedule",
-            json_data=payload,
-            username=username,
-            password=password
-        )
-        # Schedule response is in 'result' key
-        schedule = response.get("result", response)
+            response = await client.post(f"/sites/{site_id}/backup-schedule", payload)
+            schedule = response.get("schedule", response.get("data", response))
 
-        return format_success(
+            return format_success(
                 f"Backup schedule created for site {site_id}",
                 {
                     "schedule_id": schedule.get("id"),
@@ -467,45 +452,35 @@ async def schedule_backup(
                     "time": schedule.get("time"),
                     "enabled": schedule.get("enabled", True)
                 }
-        )
+            )
 
     except Exception as e:
         return format_error(f"Failed to schedule backup for site {site_id}: {str(e)}")
 
 
-async def get_backup_schedule(
-    site_id: str,
-    username: Optional[str] = None,
-    password: Optional[str] = None
-) -> Dict[str, Any]:
+async def get_backup_schedule(site_id: str) -> Dict[str, Any]:
     """
     Get current backup schedule for a site.
 
     Args:
         site_id: The ID of the site
-        username: Rocket.net username (optional, uses env var if not provided)
-        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Current backup schedule details
     """
     try:
-        response = await make_api_request(
-            method="GET",
-            endpoint=f"/sites/{site_id}/backup-schedule",
-            username=username,
-            password=password
-        )
-        # Schedule response is in 'result' key
-        schedule = response.get("result", response)
+        config = Config.from_env()
+        async with RocketnetClient(config) as client:
+            response = await client.get(f"/sites/{site_id}/backup-schedule")
+            schedule = response.get("schedule", response.get("data", response))
 
-        if not schedule:
-            return format_warning(
-                "No backup schedule found",
-                {"site_id": site_id, "message": "This site does not have automatic backups configured"}
-            )
+            if not schedule:
+                return format_warning(
+                    "No backup schedule found",
+                    {"site_id": site_id, "message": "This site does not have automatic backups configured"}
+                )
 
-        return format_success(
+            return format_success(
                 "Backup schedule retrieved",
                 {
                     "schedule_id": schedule.get("id"),
@@ -518,7 +493,7 @@ async def get_backup_schedule(
                     "enabled": schedule.get("enabled"),
                     "total_backups": schedule.get("total_backups", 0)
                 }
-        )
+            )
 
     except Exception as e:
         return format_error(f"Failed to get backup schedule for site {site_id}: {str(e)}")
@@ -530,9 +505,7 @@ async def update_backup_schedule(
     backup_type: Optional[str] = None,
     retention_days: Optional[int] = None,
     time: Optional[str] = None,
-    enabled: Optional[bool] = None,
-    username: Optional[str] = None,
-    password: Optional[str] = None
+    enabled: Optional[bool] = None
 ) -> Dict[str, Any]:
     """
     Update backup schedule for a site.
@@ -544,40 +517,33 @@ async def update_backup_schedule(
         retention_days: New retention period
         time: New backup time
         enabled: Enable or disable the schedule
-        username: Rocket.net username (optional, uses env var if not provided)
-        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Updated schedule information
     """
     try:
-        payload = {}
+        config = Config.from_env()
+        async with RocketnetClient(config) as client:
+            payload = {}
 
-        if frequency:
-            payload["frequency"] = frequency
-        if backup_type:
-            payload["backup_type"] = backup_type
-        if retention_days is not None:
-            payload["retention_days"] = retention_days
-        if time:
-            payload["time"] = time
-        if enabled is not None:
-            payload["enabled"] = enabled
+            if frequency:
+                payload["frequency"] = frequency
+            if backup_type:
+                payload["backup_type"] = backup_type
+            if retention_days is not None:
+                payload["retention_days"] = retention_days
+            if time:
+                payload["time"] = time
+            if enabled is not None:
+                payload["enabled"] = enabled
 
-        if not payload:
-            return format_warning("No updates provided")
+            if not payload:
+                return format_warning("No updates provided")
 
-        response = await make_api_request(
-            method="PATCH",
-            endpoint=f"/sites/{site_id}/backup-schedule",
-            json_data=payload,
-            username=username,
-            password=password
-        )
-        # Schedule response is in 'result' key
-        schedule = response.get("result", response)
+            response = await client.patch(f"/sites/{site_id}/backup-schedule", payload)
+            schedule = response.get("schedule", response.get("data", response))
 
-        return format_success(
+            return format_success(
                 "Backup schedule updated",
                 {
                     "schedule_id": schedule.get("id"),
@@ -588,7 +554,7 @@ async def update_backup_schedule(
                     "time": schedule.get("time"),
                     "enabled": schedule.get("enabled")
                 }
-        )
+            )
 
     except Exception as e:
         return format_error(f"Failed to update backup schedule for site {site_id}: {str(e)}")
@@ -596,9 +562,7 @@ async def update_backup_schedule(
 
 async def delete_backup_schedule(
     site_id: str,
-    confirm: bool = False,
-    username: Optional[str] = None,
-    password: Optional[str] = None
+    confirm: bool = False
 ) -> Dict[str, Any]:
     """
     Remove automatic backup schedule for a site.
@@ -606,8 +570,6 @@ async def delete_backup_schedule(
     Args:
         site_id: The ID of the site
         confirm: Must be True to confirm deletion
-        username: Rocket.net username (optional, uses env var if not provided)
-        password: Rocket.net password (optional, uses env var if not provided)
 
     Returns:
         Confirmation of schedule deletion
@@ -617,22 +579,19 @@ async def delete_backup_schedule(
             return format_warning(
                 "Schedule deletion requires confirmation",
                 {"message": "Set confirm=True to delete the backup schedule. Automatic backups will stop!"}
-        )
+            )
 
-        await make_api_request(
-            method="DELETE",
-            endpoint=f"/sites/{site_id}/backup-schedule",
-            username=username,
-            password=password
-        )
+        config = Config.from_env()
+        async with RocketnetClient(config) as client:
+            await client.delete(f"/sites/{site_id}/backup-schedule")
 
-        return format_success(
+            return format_success(
                 "Backup schedule deleted",
                 {
                     "site_id": site_id,
                     "message": "Automatic backups have been disabled for this site"
                 }
-        )
+            )
 
     except Exception as e:
         return format_error(f"Failed to delete backup schedule for site {site_id}: {str(e)}")
@@ -828,7 +787,7 @@ async def delete_cloud_backup(
             return format_warning(
                 "Cloud backup deletion requires confirmation",
                 {"message": "Set confirm=True to delete the cloud backup. This action cannot be undone!"}
-        )
+            )
 
         await make_api_request(
             method="DELETE",
@@ -931,7 +890,7 @@ async def restore_cloud_backup(
                     "backup_id": backup_id,
                     "target_site_id": target_site_id or site_id
                 }
-        )
+            )
 
         payload = {}
         if target_site_id:
